@@ -6,14 +6,15 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/07 18:36:15 by mberger-          #+#    #+#             */
-/*   Updated: 2022/01/07 18:52:35 by mberger-         ###   ########.fr       */
+/*   Updated: 2022/01/07 21:15:52 by matubu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
 #include <memory> // std::allocator
-#include <exception> //std::error
+#include <exception> // std::error
+#include <limits> // max_size
 
 namespace ft {
 	template <
@@ -58,10 +59,16 @@ namespace ft {
 			~vector(void) { allocator.deallocate(start, capacity()); }
 
 			//Access
-			T	*data() { return (start); }
-			const T	*data() const { return (start); }
-			reference	operator[](size_type pos) { return (start[pos]); }
+			reference	operator[](size_type pos)           { return (start[pos]); }
 			const_reference	operator[](size_type pos) const { return (start[pos]); }
+			reference at (size_type n)                      { if (n >= size()) throw std::out_of_range("Out of range"); return (start[n]); }
+			const_reference at (size_type n) const          { if (n >= size()) throw std::out_of_range("Out of range"); return (start[n]); }
+			reference front()                               { return (start[0]); };
+			const_reference front() const                   { return (start[0]); };
+			reference back()                                { return (curr[-1]); };
+			const_reference back() const                    { return (curr[-1]); };
+			T	*data()                                     { return (start); }
+			const T	*data() const                           { return (start); }
 
 			//Capacity
 			bool		empty() const { return (curr == start); }
@@ -91,8 +98,6 @@ namespace ft {
 				*curr++ = value;
 			}
 			//TODO call elm destructor
-			void	pop_back() {
-				curr--;
-			}
+			void	pop_back() { curr--; }
 	};
 }

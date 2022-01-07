@@ -1,5 +1,5 @@
 all:
-	g++ -Wall -Werror -Wextra main.cpp
+	g++ -Wall -Werror -Wextra -fsanitize=address main.cpp
 run: all
 	./a.out
 re: fclean all

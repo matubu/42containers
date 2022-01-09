@@ -1,9 +1,11 @@
 #include <iostream>
-#include <vector>
+#include <iomanip>
 #include <time.h>
+#include <vector>
 #include "vector.hpp"
 
-const std::string endl = "\033[0m\n";
+#define ITER 10000000
+#define endl "\033[0m\n"
 
 template<class T>
 void	at(T &vector, size_t n)
@@ -15,7 +17,7 @@ void	at(T &vector, size_t n)
 template<class T>
 void	debug(T &vector)
 {
-	std::cout << "<\033[92m" << (typeid(T) == typeid(ft::vector<int>) ? "ft" : "std") << "\033[0m>" << endl;
+	std::cout << "<\033[92m" << (typeid(T) == typeid(ft::vector<int>) ? "ft " : "std") << "\033[0m>" << endl;
 	std::cout << "  \033[94mdata\033[0m() -> \033[33m" << vector.data() << endl;
 	typename T::size_type n = vector.size();
 	at(vector, 0);
@@ -35,63 +37,50 @@ void	debug(T &vector)
 	std::cout << "  \033[94mcapacity\033[0m() -> \033[33m" << vector.capacity() << endl;
 }
 
-#define ITER 10000000
-#define TEST(test, lib, name) now(); for(int i = 0; i < ITER; i++) test; now(lib, name)
+#define TEST(cmd) \
+	std::cout << "\n\n-----> " << #cmd << endl; \
+	real.cmd; \
+	debug(real); \
+	mine.cmd; \
+	debug(mine)
 
-void	now(const char *lib = NULL, const char *oper = NULL)
-{
-	static clock_t	start;
-	if (lib)
-		std::cout << "\033[92m" << lib << "\033[0m " << oper << " -> "
-			<< ((double)(clock() - start) / CLOCKS_PER_SEC * 1000) << "ms" << std::endl;
-	start = clock();
-}
+#define SPED(cmd) \
+	start = clock(); \
+	for(int i = 0; i < ITER; i++) cmd; \
+	std::cout << std::setw(25) << #cmd << " * " << ITER << " -> " \
+		<< ((double)(clock() - start) / CLOCKS_PER_SEC * 1000) << "ms" << endl
+
+#define PERF(cmd) \
+	SPED(real.cmd); \
+	SPED(mine.cmd)
 
 int	main(void)
 {
-	ft::vector<int>		mine;
+	clock_t	start;
 	std::vector<int>	real;
+	ft::vector<int>		mine;
 
 	debug(real);
-	real.push_back(1);
-	debug(real);
-	real.push_back(2);
-	debug(real);
-	real.push_back(3);
-	debug(real);
-	real.pop_back();
-	debug(real);
-	real.pop_back();
-	debug(real);
-	real.pop_back();
-	debug(real);
-	real.reserve(100);
-	debug(real);
-
-	debug(mine);
-	mine.push_back(1);
-	debug(mine);
-	mine.push_back(2);
-	debug(mine);
-	mine.push_back(3);
-	debug(mine);
-	mine.pop_back();
-	debug(mine);
-	mine.pop_back();
-	debug(mine);
-	mine.pop_back();
-	debug(mine);
-	mine.reserve(100);
 	debug(mine);
 
-	TEST(real.push_back(i), "std", "push");
-	TEST(mine.push_back(i), "ft", "push");
+	//TODO test copy
+	TEST(reserve(1));
+	TEST(push_back(1));
+	TEST(push_back(2));
+	TEST(push_back(3));
+	TEST(pop_back());
+	TEST(resize(5));
+	TEST(resize(2));
+	TEST(resize(1));
+	TEST(pop_back());
+	TEST(reserve(100));
 
-	TEST(real[i]++, "std", "access");
-	TEST(mine[i]++, "ft", "access");
-
-	TEST(real.pop_back(), "std", "pop");
-	TEST(mine.pop_back(), "ft", "pop");
+	PERF(push_back(i));
+	PERF(pop_back());
+	PERF(clear());
+	PERF(resize(i));
+	PERF(resize(ITER - i));
+	SPED(real[i]++); SPED(mine[i]++);
 
 	debug(real);
 	debug(mine);

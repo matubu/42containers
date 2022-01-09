@@ -6,7 +6,7 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/07 18:36:15 by mberger-          #+#    #+#             */
-/*   Updated: 2022/01/07 21:15:52 by matubu           ###   ########.fr       */
+/*   Updated: 2022/01/09 15:21:31 by matubu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 
 #include <memory> // std::allocator
 #include <exception> // std::error
-#include <limits> // max_size
 
 namespace ft {
 	template <
@@ -45,44 +44,49 @@ namespace ft {
 		public:
 			//Constructor
 			vector(void) : allocator() { start = curr = end = NULL; }
-			explicit vector(const Alloc &alloc) : allocator(alloc) { start = curr = end = allocator.allocate(0); }
+			explicit vector(const Alloc &alloc) : allocator(alloc) { start = curr = end = NULL; }
 			//explicit vector(size_type count,
-			//	const T& value = T(),
-			//	const Allocator& alloc = Allocator()) {}
+			//	const T &value = T(),
+			//	const Allocator &alloc = Allocator()) {}
 			//template<class InputIt>
 			//vector(InputIt first, InputIt last,
-			//		const Allocator& alloc = Allocator()) {}
-			//vector(const vector& other) {}
+			//		const Allocator &alloc = Allocator()) {}
+			vector(const vector &other) : vector() {
+				size_type n = other.size();
+				reserve(n);
+				while (n)
+					push_back(other.curr[-n--]);
+					//start[n] = other.start[n];
+			}
 	
 			//Destructor
-			//TODO destroy all elements ?
 			~vector(void) { allocator.deallocate(start, capacity()); }
 
+			allocator_type	get_allocator() const { return (allocator); };
+
 			//Access
-			reference	operator[](size_type pos)           { return (start[pos]); }
+			reference		operator[](size_type pos)       { return (start[pos]); }
 			const_reference	operator[](size_type pos) const { return (start[pos]); }
-			reference at (size_type n)                      { if (n >= size()) throw std::out_of_range("Out of range"); return (start[n]); }
-			const_reference at (size_type n) const          { if (n >= size()) throw std::out_of_range("Out of range"); return (start[n]); }
-			reference front()                               { return (start[0]); };
-			const_reference front() const                   { return (start[0]); };
-			reference back()                                { return (curr[-1]); };
-			const_reference back() const                    { return (curr[-1]); };
-			T	*data()                                     { return (start); }
+			reference		at(size_type n)                 { if (n >= size()) throw std::out_of_range("Out of range"); return (start[n]); }
+			const_reference	at(size_type n) const           { if (n >= size()) throw std::out_of_range("Out of range"); return (start[n]); }
+			reference		front()                         { return (start[0]); };
+			const_reference	front() const                   { return (start[0]); };
+			reference		back()                          { return (curr[-1]); };
+			const_reference	back() const                    { return (curr[-1]); };
+			T				*data()                         { return (start); }
 			const T	*data() const                           { return (start); }
 
 			//Capacity
 			bool		empty() const { return (curr == start); }
 			size_type	size() const { return (curr - start); }
-			//TODO why not the same value
-			size_type	max_size() const { return (std::numeric_limits<difference_type>::max()); }
-			//TODO maybe need to destroy all elements
+			size_type	max_size() const { return (allocator.max_size()); }
 			void		reserve(size_type new_cap) {
 				if (new_cap > max_size())
 					throw std::length_error("'n' exceeds maximum supported size");
 				if (new_cap <= capacity())
 					return ;
-				pointer		old = start;
 				size_type	n = size(), cap = capacity();
+				pointer		old = start;
 				end = (start = allocator.allocate(new_cap)) + new_cap;
 				curr = start + n;
 				while (n--)
@@ -92,12 +96,24 @@ namespace ft {
 			size_type	capacity() const { return (end - start); }
 
 			//Modifiers
-			void	push_back(const T	&value) {
+			void	clear() { curr = start; }
+			void	push_back(const T &value) {
 				if (size() >= capacity())
 					reserve(capacity() ? capacity() * 2 : 1);
 				*curr++ = value;
 			}
-			//TODO call elm destructor
 			void	pop_back() { curr--; }
+			void	resize(size_type count, T value = T())
+			{
+				if (size() >= count) { curr = start + count; return ; }
+				reserve(count);
+				while (size() < count)
+					push_back(value);
+			}
+			void swap(vector &other) {
+				std::swap(start, other.start);
+				std::swap(curr, other.curr);
+				std::swap(end, other.end);
+			};
 	};
 }

@@ -6,7 +6,7 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/07 18:36:15 by mberger-          #+#    #+#             */
-/*   Updated: 2022/01/09 15:21:31 by matubu           ###   ########.fr       */
+/*   Updated: 2022/01/09 20:11:40 by matubu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,12 @@
 
 #include <memory> // std::allocator
 #include <exception> // std::error
+#include <cstring> // memcpy
+
+#pragma GCC optimize ("O3")
+
+#define likely(x)      __builtin_expect(x, 1)
+#define unlikely(x)    __builtin_expect(x, 0)
 
 namespace ft {
 	template <
@@ -54,9 +60,7 @@ namespace ft {
 			vector(const vector &other) : vector() {
 				size_type n = other.size();
 				reserve(n);
-				while (n)
-					push_back(other.curr[-n--]);
-					//start[n] = other.start[n];
+				memcpy(start, other.start, n * sizeof(T));
 			}
 	
 			//Destructor
@@ -81,16 +85,15 @@ namespace ft {
 			size_type	size() const { return (curr - start); }
 			size_type	max_size() const { return (allocator.max_size()); }
 			void		reserve(size_type new_cap) {
-				if (new_cap > max_size())
-					throw std::length_error("'n' exceeds maximum supported size");
-				if (new_cap <= capacity())
+				if (unlikely(new_cap <= capacity()))
 					return ;
+				if (unlikely(new_cap > max_size()))
+					throw std::length_error("'n' exceeds maximum supported size");
 				size_type	n = size(), cap = capacity();
 				pointer		old = start;
 				end = (start = allocator.allocate(new_cap)) + new_cap;
 				curr = start + n;
-				while (n--)
-					start[n] = old[n];
+				memcpy(start, old, n * sizeof(T));
 				allocator.deallocate(old, cap);
 			}
 			size_type	capacity() const { return (end - start); }
@@ -98,14 +101,14 @@ namespace ft {
 			//Modifiers
 			void	clear() { curr = start; }
 			void	push_back(const T &value) {
-				if (size() >= capacity())
-					reserve(capacity() ? capacity() * 2 : 1);
+				if (unlikely(size() >= capacity()))
+					reserve(capacity() << 1 | !capacity());
 				*curr++ = value;
 			}
 			void	pop_back() { curr--; }
 			void	resize(size_type count, T value = T())
 			{
-				if (size() >= count) { curr = start + count; return ; }
+				if (likely(size() >= count)) { curr = start + count; return ; }
 				reserve(count);
 				while (size() < count)
 					push_back(value);

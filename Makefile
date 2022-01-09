@@ -1,5 +1,7 @@
+FLAGS=-Wall -Werror -Wextra# -fsanitize=address
+
 all:
-	g++ -Wall -Werror -Wextra -fsanitize=address main.cpp
+	g++ $(FLAGS) main.cpp
 run: all
 	./a.out
 re: fclean all

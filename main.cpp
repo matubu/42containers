@@ -1,10 +1,22 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.cpp                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: matubu <marvin@42.fr>                      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/01/09 21:38:11 by matubu            #+#    #+#             */
+/*   Updated: 2022/01/10 17:53:26 by matubu           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <iostream>
 #include <iomanip>
 #include <time.h>
 #include <vector>
 #include "vector.hpp"
 
-#define ITER 10000000
+#define ITER 10000000 // 10 millions
 #define ENDL "\033[0m\n"
 
 template<class T>
@@ -53,40 +65,75 @@ void	at(T &vector, size_t n)
 	SPED(mine.cmd); \
 	std::cout << ENDL
 
+//TODO try with string
 int	main(void)
 {
-	clock_t	start;
-	std::vector<int>	real;
-	ft::vector<int>		mine;
+	{
+		clock_t	start;
+		std::vector<int>	real;
+		ft::vector<int>		mine;
 
-	DEBUG(real);
-	DEBUG(mine);
+		DEBUG(real);
+		DEBUG(mine);
 
-	//TODO test copy
-	TEST(reserve(1));
-	TEST(push_back(1));
-	TEST(push_back(2));
-	TEST(push_back(3));
-	TEST(pop_back());
-	TEST(resize(5));
-	TEST(resize(2));
-	TEST(resize(1));
-	TEST(pop_back());
-	TEST(reserve(100));
+		//TODO test copy
+		TEST(clear());
+		TEST(reserve(1));
+		TEST(push_back(1));
+		TEST(push_back(2));
+		TEST(push_back(3));
+		TEST(pop_back());
+		TEST(resize(5));
+		TEST(resize(2));
+		TEST(resize(1));
+		TEST(pop_back());
+		TEST(reserve(100));
 
-	PERF(push_back(i));
-	PERF(pop_back());
-	PERF(clear());
-	PERF(resize(i));
-	PERF(resize(ITER - i));
-	SPED(real[i]++); SPED(mine[i]++);
+		PERF(push_back(i));
+		PERF(pop_back());
+		PERF(clear());
+		PERF(resize(i));
+		PERF(resize(ITER - i));
+		SPED(real[i]++); SPED(mine[i]++);
 
-	DEBUG(real);
-	DEBUG(mine);
+		DEBUG(real);
+		DEBUG(mine);
 
-	std::vector<int>	real_copy(real);
-	ft::vector<int>		mine_copy(mine);
+		std::vector<int>	real_copy(real);
+		ft::vector<int>		mine_copy(mine);
 
-	DEBUG(real_copy);
-	DEBUG(mine_copy);
+		DEBUG(real_copy);
+		DEBUG(mine_copy);
+
+		TEST(push_back(1));
+
+		std::cout << "\n\n-----> swap()" << ENDL;
+		real.swap(real_copy);
+		mine.swap(mine_copy);
+
+		DEBUG(real);
+		DEBUG(mine);
+		DEBUG(real_copy);
+		DEBUG(mine_copy);
+
+		TEST(pop_back());
+
+		std::cout << "\n\n-----> _copy = notcopy" << ENDL;
+		std::vector<int>	*real_asgn = &(real_copy = real);
+		ft::vector<int>		*mine_asgn = &(mine_copy = mine);
+		DEBUG((*real_asgn));
+		DEBUG((*mine_asgn));
+
+		DEBUG(real);
+		DEBUG(mine);
+		DEBUG(real_copy);
+		DEBUG(mine_copy);
+	}
+	{
+		std::stack<int>	real;
+		ft::stack<int>	mine;
+
+		TEST(push(5));
+		TEST(pop());
+	}
 }

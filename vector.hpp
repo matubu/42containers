@@ -6,7 +6,7 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/07 18:36:15 by mberger-          #+#    #+#             */
-/*   Updated: 2022/01/09 20:11:40 by matubu           ###   ########.fr       */
+/*   Updated: 2022/01/10 17:36:35 by matubu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,10 +22,7 @@
 #define unlikely(x)    __builtin_expect(x, 0)
 
 namespace ft {
-	template <
-		class T,
-		class Alloc = std::allocator<T>
-	>
+	template <class T, class Alloc = std::allocator<T>>
 	class vector {
 		public:
 			//Types
@@ -41,7 +38,7 @@ namespace ft {
 			//typedef typename std::reverse_iterator<const_iterator> const_reverse_iterator
 			typedef typename std::ptrdiff_t                        difference_type;
 			typedef typename std::size_t                           size_type;
-		private:
+		protected:
 			//Data
 			Alloc	allocator;
 			pointer	start;
@@ -61,10 +58,25 @@ namespace ft {
 				size_type n = other.size();
 				reserve(n);
 				memcpy(start, other.start, n * sizeof(T));
+				curr = start + n;
 			}
 	
 			//Destructor
 			~vector(void) { allocator.deallocate(start, capacity()); }
+
+			vector	&operator=(const vector &other)
+			{
+				size_type n = other.size();
+				curr = start;
+				reserve(n);
+				memcpy(start, other.start, n * sizeof(T));
+				curr = start + n;
+				return (*this);
+			}
+
+			//void assign( size_type count, const T& value );
+			//template< class InputIt >
+			//void assign( InputIt first, InputIt last );
 
 			allocator_type	get_allocator() const { return (allocator); };
 
@@ -110,8 +122,7 @@ namespace ft {
 			{
 				if (likely(size() >= count)) { curr = start + count; return ; }
 				reserve(count);
-				while (size() < count)
-					push_back(value);
+				while (size() < count) push_back(value);
 			}
 			void swap(vector &other) {
 				std::swap(start, other.start);

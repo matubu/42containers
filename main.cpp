@@ -6,7 +6,7 @@
 /*   By: matubu <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/09 21:38:11 by matubu            #+#    #+#             */
-/*   Updated: 2022/01/10 17:53:26 by matubu           ###   ########.fr       */
+/*   Updated: 2022/01/11 13:20:31 by matubu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,9 @@
 #include <iomanip>
 #include <time.h>
 #include <vector>
+//#include <stack>
 #include "vector.hpp"
+//#include "stack.hpp"
 
 #define ITER 10000000 // 10 millions
 #define ENDL "\033[0m\n"
@@ -41,10 +43,11 @@ void	at(T &vector, size_t n)
 	} \
 	while (n--) \
 		std::cout << "    - [\033[33m" << n << "\033[0m] -> \033[33m" << vector[n] << ENDL; \
+	std::cout << "  \033[94mmax_size\033[0m() -> \033[33m" << vector.max_size() << ENDL; \
+	std::cout << "  \033[94mcapacity\033[0m() -> \033[33m" << vector.capacity() << ENDL; \
 	std::cout << "  \033[94mempty\033[0m() -> \033[36m" << (vector.empty() ? "true" : "false") << ENDL; \
 	std::cout << "  \033[94msize\033[0m() -> \033[33m" << vector.size() << ENDL; \
-	std::cout << "  \033[94mmax_size\033[0m() -> \033[33m" << vector.max_size() << ENDL; \
-	std::cout << "  \033[94mcapacity\033[0m() -> \033[33m" << vector.capacity() << ENDL; }
+}
 
 #define TEST(cmd) \
 	std::cout << "\n\n-----> " << #cmd << ENDL; \
@@ -53,26 +56,28 @@ void	at(T &vector, size_t n)
 	mine.cmd; \
 	DEBUG(mine)
 
-#define SPED(cmd) \
+#define SPED(cmd) { \
 	std::cout << (strncmp(#cmd, "real", 4) ? "\033[36m" : "\033[91m"); \
-	start = clock(); \
+	clock_t start = clock(); \
 	for(int i = 0; i < ITER; i++) cmd; \
 	std::cout << std::setw(25) << #cmd << " * " << ITER << " -> " \
-		<< ((double)(clock() - start) / CLOCKS_PER_SEC * 1000) << "ms" << ENDL
+		<< ((double)(clock() - start) / CLOCKS_PER_SEC * 1000) << "ms" << ENDL; \
+	}
 
 #define PERF(cmd) \
 	SPED(real.cmd); \
 	SPED(mine.cmd); \
 	std::cout << ENDL
 
+
 //TODO try with string
 int	main(void)
 {
-	{
-		clock_t	start;
+	//{
 		std::vector<int>	real;
 		ft::vector<int>		mine;
 
+		//safe(mine.top, mine.top());
 		DEBUG(real);
 		DEBUG(mine);
 
@@ -128,12 +133,12 @@ int	main(void)
 		DEBUG(mine);
 		DEBUG(real_copy);
 		DEBUG(mine_copy);
-	}
+	/*}
 	{
 		std::stack<int>	real;
 		ft::stack<int>	mine;
 
 		TEST(push(5));
 		TEST(pop());
-	}
+	}*/
 }

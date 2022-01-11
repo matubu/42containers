@@ -6,7 +6,7 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/07 18:36:15 by mberger-          #+#    #+#             */
-/*   Updated: 2022/01/10 17:36:35 by matubu           ###   ########.fr       */
+/*   Updated: 2022/01/11 13:18:49 by matubu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,20 +111,21 @@ namespace ft {
 			size_type	capacity() const { return (end - start); }
 
 			//Modifiers
-			void	clear() { curr = start; }
-			void	push_back(const T &value) {
+			void		clear() { curr = start; }
+			//iterator	insert(iterator pos, const T& value) {}
+			void		push_back(const T &value) {
 				if (unlikely(size() >= capacity()))
 					reserve(capacity() << 1 | !capacity());
 				*curr++ = value;
 			}
-			void	pop_back() { curr--; }
-			void	resize(size_type count, T value = T())
+			void		pop_back() { curr--; }
+			void		resize(size_type count, T value = T())
 			{
 				if (likely(size() >= count)) { curr = start + count; return ; }
 				reserve(count);
 				while (size() < count) push_back(value);
 			}
-			void swap(vector &other) {
+			void		swap(vector &other) {
 				std::swap(start, other.start);
 				std::swap(curr, other.curr);
 				std::swap(end, other.end);

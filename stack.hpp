@@ -6,7 +6,7 @@
 /*   By: matubu <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/10 17:34:45 by matubu            #+#    #+#             */
-/*   Updated: 2022/01/10 17:45:50 by matubu           ###   ########.fr       */
+/*   Updated: 2022/01/14 14:11:27 by matubu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,14 +31,14 @@ namespace ft {
 		stack() : stack(Container()) {}
 		explicit stack(const Container&);
 		explicit stack(Container&&);
-		template<class InputIt> stack(InputIt first, InputIt last);
+		//template<class InputIt> stack(InputIt first, InputIt last);
 		template<class Alloc> explicit stack(const Alloc&);
 		template<class Alloc> stack(const Container&, const Alloc&);
 		template<class Alloc> stack(Container&&, const Alloc&);
 		template<class Alloc> stack(const stack&, const Alloc&);
 		template<class Alloc> stack(stack&&, const Alloc&);
 		template<class InputIt, class Alloc>
-		stack(InputIt first, InputIt last, const Alloc&);
+		//stack(InputIt first, InputIt last, const Alloc&);
 	
 		bool empty() const    { return c.empty(); }
 		size_type size()  const             { return c.size(); }
@@ -52,16 +52,16 @@ namespace ft {
 	template<class Container>
 		stack(Container) -> stack<typename Container::value_type, Container>;
 	
-	template<class InputIt>
-		stack(InputIt, InputIt) -> stack</*iter-value-type*/<InputIt>>;
+	//template<class InputIt>
+	//	stack(InputIt, InputIt) -> stack</*iter-value-type*/<InputIt>>;
 	
 	template<class Container, class Allocator>
 		stack(Container, Allocator) -> stack<typename Container::value_type, Container>;
 	
-	template<class InputIt, class Allocator>
-		stack(InputIt, InputIt, Allocator)
-		-> stack</*iter-value-type*/<InputIt>, deque</*iter-value-type*/<InputIt>,
-				Allocator>>;
+	//template<class InputIt, class Allocator>
+	//	stack(InputIt, InputIt, Allocator)
+	//	-> stack</*iter-value-type*/<InputIt>, deque</*iter-value-type*/<InputIt>,
+	//			Allocator>>;
 	
 	template<class T, class Container, class Alloc>
 		struct uses_allocator<stack<T, Container>, Alloc>

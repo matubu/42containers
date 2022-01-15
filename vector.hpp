@@ -6,7 +6,7 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/07 18:36:15 by mberger-          #+#    #+#             */
-/*   Updated: 2022/01/15 13:45:02 by mberger-         ###   ########.fr       */
+/*   Updated: 2022/01/15 14:19:38 by mberger-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ namespace ft {
 		public:
 			//Types
 			typedef T                                              value_type;
-			typedef Alloc                                          allocator_type;
+		typedef Alloc                                          allocator_type;
 			typedef typename Alloc::reference                      reference;
 			typedef typename Alloc::const_reference                const_reference;
 			typedef typename Alloc::pointer                        pointer;
@@ -76,7 +76,13 @@ namespace ft {
 				return (*this);
 			}
 
-			//void assign( size_type count, const T& value );
+			void assign(size_type count, const T& value)
+			{
+				reserve(count);
+				curr = start + count;
+				while (count--)
+					start[count] = value;
+			}
 			//template< class InputIt >
 			//void assign( InputIt first, InputIt last );
 
@@ -133,44 +139,43 @@ namespace ft {
 				std::swap(end, other.end);
 			};
 	};
-}
 
-template<class T, class Alloc>
-bool operator==(const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs)
-{
-	if (lhs.size() != rhs.size())
-		return (0);
-	for (int i = lhs.size(); i--;)
-		if (lhs[i] != rhs[i])
-			return (0);
-	return (1);
-}
-template<class T, class Alloc>
-bool operator!=(const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs)
-{ return (!(lhs == rhs)); }
-
-template<class T, class Alloc>
-bool operator<(const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs)
-{
-	for (int i = 0, size = std::min(lhs.size(), rhs.size()); i < size; i++)
-		if (lhs[i] < rhs[i])
+	template<class T, class Alloc>
+		bool operator==(const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs)
+		{
+			if (lhs.size() != rhs.size())
+				return (0);
+			for (int i = lhs.size(); i--;)
+				if (lhs[i] != rhs[i])
+					return (0);
 			return (1);
-	return (lhs.size() < rhs.size());
+		}
+	template<class T, class Alloc>
+		bool operator!=(const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs)
+		{ return (!(lhs == rhs)); }
+	template<class T, class Alloc>
+		bool operator<(const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs)
+		{
+			for (int i = 0, size = std::min(lhs.size(), rhs.size()); i < size; i++)
+				if (lhs[i] < rhs[i])
+					return (1);
+			return (lhs.size() < rhs.size());
+		}
+	template<class T, class Alloc>
+		bool operator>=(const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs)
+		{ return (!(lhs < rhs)); }
+	template<class T, class Alloc>
+		bool operator>(const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs)
+		{
+			for (int i = 0, size = std::min(lhs.size(), rhs.size()); i < size; i++)
+				if (lhs[i] > rhs[i])
+					return (1);
+			return (lhs.size() > rhs.size());
+		}
+	template<class T, class Alloc>
+		bool operator<=(const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs)
+		{ return (!(lhs > rhs)); }
+
+	template<class T, class Alloc>
+		void swap(ft::vector<T,Alloc>& lhs, ft::vector<T,Alloc>& rhs) { lhs.swap(rhs); }
 }
-
-template<class T, class Alloc>
-bool operator>=(const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs)
-{ return (!(lhs < rhs)); }
-
-template<class T, class Alloc>
-bool operator>(const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs)
-{
-	for (int i = 0, size = std::min(lhs.size(), rhs.size()); i < size; i++)
-		if (lhs[i] > rhs[i])
-			return (1);
-	return (lhs.size() > rhs.size());
-}
-
-template<class T, class Alloc>
-bool operator<=(const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs)
-{ return (!(lhs > rhs)); }

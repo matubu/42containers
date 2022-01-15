@@ -6,7 +6,7 @@
 /*   By: matubu <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/09 21:38:11 by matubu            #+#    #+#             */
-/*   Updated: 2022/01/15 13:37:31 by mberger-         ###   ########.fr       */
+/*   Updated: 2022/01/15 14:20:17 by mberger-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,14 +140,18 @@ int	main(void)
 	DEBUG(mine_len_7_fill_5);
 
 	std::cout << (real > real_len_7_fill_5) << " (>) " << (mine > mine_len_7_fill_5) << ENDL;
-
 	std::cout << (real == real_len_7_fill_5) << " (==)  " << (mine == mine_len_7_fill_5) << ENDL;
-
 	std::cout << (real < real_len_7_fill_5) << " (<) " << (mine < mine_len_7_fill_5) << ENDL;
-
 	std::cout << (real != real_len_7_fill_5) << " (!=) " << (mine != mine_len_7_fill_5) << ENDL;
-
 	std::cout << (real >= real_len_7_fill_5) << " (>=) " << (mine >= mine_len_7_fill_5) << ENDL;
-
 	std::cout << (real <= real_len_7_fill_5) << " (<=) " << (mine <= mine_len_7_fill_5) << ENDL;
+
+	std::swap(real, real_len_7_fill_5);
+	ft::swap(mine, mine_len_7_fill_5);
+
+	DEBUG(real);
+	DEBUG(mine);
+
+	TEST(assign(3, 4))
+	TEST(assign(7, 8))
 }

@@ -6,7 +6,7 @@
 /*   By: matubu <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/09 21:38:11 by matubu            #+#    #+#             */
-/*   Updated: 2022/01/15 14:20:17 by mberger-         ###   ########.fr       */
+/*   Updated: 2022/01/15 20:08:27 by mberger-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,11 +76,9 @@ int	main(void)
 	std::vector<int>	real;
 	ft::vector<int>		mine;
 
-	//safe(mine.top, mine.top());
 	DEBUG(real);
 	DEBUG(mine);
 
-	//TODO test copy
 	TEST(clear());
 	TEST(reserve(1));
 	TEST(push_back(1));
@@ -154,4 +152,20 @@ int	main(void)
 
 	TEST(assign(3, 4))
 	TEST(assign(7, 8))
+
+	real[6] = 7;
+	mine[6] = 7;
+	
+	std::cout << "real:" << ENDL;
+	for (std::vector<int>::iterator it = real.begin(); it != real.end(); it++)
+		std::cout << "\t- " << *it << ENDL;
+	std::cout << "mine:" << ENDL;
+	for (ft::vector<int>::iterator it = mine.begin(); it != mine.end(); it++)
+		std::cout << "\t- " << *it << ENDL;
+	std::cout << "reverse real:" << ENDL;
+	for (std::vector<int>::reverse_iterator it = real.rbegin(); it != real.rend(); it++)
+		std::cout << "\t- " << *it << ENDL;
+	std::cout << "reverse mine:" << ENDL;
+	for (ft::vector<int>::reverse_iterator it = mine.rbegin(); it != mine.rend(); it++)
+		std::cout << "\t- " << *it << ENDL;
 }

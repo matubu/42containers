@@ -6,7 +6,7 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/07 18:36:15 by mberger-          #+#    #+#             */
-/*   Updated: 2022/01/15 14:19:38 by mberger-         ###   ########.fr       */
+/*   Updated: 2022/01/15 19:57:21 by mberger-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include <memory> // std::allocator
 #include <exception> // std::error
 #include <cstring> // memcpy
+#include "iterator.hpp" // ft::reverse_iterator
 
 #define likely(x)      __builtin_expect(x, 1)
 #define unlikely(x)    __builtin_expect(x, 0)
@@ -25,15 +26,15 @@ namespace ft {
 		public:
 			//Types
 			typedef T                                              value_type;
-		typedef Alloc                                          allocator_type;
+			typedef Alloc                                          allocator_type;
 			typedef typename Alloc::reference                      reference;
 			typedef typename Alloc::const_reference                const_reference;
 			typedef typename Alloc::pointer                        pointer;
 			typedef typename Alloc::const_pointer                  const_pointer;
-			//typedef typename             iterator;
-			//typedef typename             const_iterator;
-			//typedef typename std::reverse_iterator<iterator>       reverse_iterator
-			//typedef typename std::reverse_iterator<const_iterator> const_reverse_iterator
+			typedef pointer                                        iterator;
+			typedef const_pointer                                  const_iterator;
+			typedef typename ft::reverse_iterator<iterator>        reverse_iterator;
+			typedef typename ft::reverse_iterator<const_iterator>  const_reverse_iterator;
 			typedef typename std::ptrdiff_t                        difference_type;
 			typedef typename std::size_t                           size_type;
 		protected:
@@ -41,13 +42,13 @@ namespace ft {
 			Alloc	allocator;
 			pointer	start;
 			pointer	curr;
-			pointer	end;
+			pointer	last;
 		public:
 			//Constructor
-			vector(void) : allocator(), start(NULL), curr(NULL), end(NULL) {}
-			explicit vector(const Alloc &alloc) : allocator(alloc), start(NULL), curr(NULL), end(NULL) {}
+			vector(void) : allocator(), start(NULL), curr(NULL), last(NULL) {}
+			explicit vector(const Alloc &alloc) : allocator(alloc), start(NULL), curr(NULL), last(NULL) {}
 			explicit vector(size_type count, const T &value = T(), const Alloc &alloc = Alloc())
-				: allocator(alloc), start(NULL), curr(NULL), end(NULL) {
+				: allocator(alloc), start(NULL), curr(NULL), last(NULL) {
 				reserve(count);
 				curr = start + count;
 				while (count--)
@@ -56,7 +57,7 @@ namespace ft {
 			//template<class InputIt>
 			//vector(InputIt first, InputIt last,
 			//		const Alloc &alloc = Alloc()) {}
-			vector(const vector &other) : allocator(other.allocator), start(NULL), curr(NULL), end(NULL) {
+			vector(const vector &other) : allocator(other.allocator), start(NULL), curr(NULL), last(NULL) {
 				size_type n = other.size();
 				reserve(n);
 				memcpy(start, other.start, n * sizeof(T));
@@ -76,15 +77,22 @@ namespace ft {
 				return (*this);
 			}
 
-			void assign(size_type count, const T& value)
+			void assign(size_type count, const T &value)
 			{
+				curr = start;
 				reserve(count);
 				curr = start + count;
 				while (count--)
 					start[count] = value;
 			}
-			//template< class InputIt >
-			//void assign( InputIt first, InputIt last );
+			//template <class InputIt>
+			//void assign(InputIt first, InputIt last)
+			//{
+			//	curr = start;
+			//	reserve(last - first);
+			//	while (first < last)
+			//		push_back(*first++);
+			//}
 
 			allocator_type	get_allocator() const { return (allocator); };
 
@@ -100,6 +108,16 @@ namespace ft {
 			T				*data()                         { return (start); }
 			const T	*data() const                           { return (start); }
 
+			//Iterators
+			iterator		begin() { return (start); }
+			const_iterator	begin() const { return (start); }
+			iterator		end() { return (curr); }
+			const_reverse_iterator	end() const { return (curr); }
+			reverse_iterator		rbegin() { return (reverse_iterator(curr)); }
+			const_reverse_iterator	rbegin() const { return (const_reverse_iterator(curr)); }
+			reverse_iterator		rend() { return (reverse_iterator(start)); }
+			const_reverse_iterator	rend() const { return (const_reverse_iterator(start)); }
+
 			//Capacity
 			bool		empty() const { return (curr == start); }
 			size_type	size() const { return (curr - start); }
@@ -111,16 +129,19 @@ namespace ft {
 					throw std::length_error("'n' exceeds maximum supported size");
 				size_type	n = size(), cap = capacity();
 				pointer		old = start;
-				end = (start = allocator.allocate(new_cap)) + new_cap;
+				last = (start = allocator.allocate(new_cap)) + new_cap;
 				curr = start + n;
 				memcpy(start, old, n * sizeof(T));
 				allocator.deallocate(old, cap);
 			}
-			size_type	capacity() const { return (end - start); }
+			size_type	capacity() const { return (last - start); }
 
 			//Modifiers
 			void		clear() { curr = start; }
 			//iterator	insert(iterator pos, const T& value) {}
+			//void insert(iterator pos, size_type count, const T& value) {}
+			//template< class InputIt >
+			//void insert( iterator pos, InputIt first, InputIt last ) {}
 			void		push_back(const T &value) {
 				if (unlikely(size() >= capacity()))
 					reserve(capacity() << 1 | !capacity());
@@ -136,11 +157,11 @@ namespace ft {
 			void		swap(vector &other) {
 				std::swap(start, other.start);
 				std::swap(curr, other.curr);
-				std::swap(end, other.end);
+				std::swap(last, other.last);
 			};
 	};
 
-	template<class T, class Alloc>
+	template <class T, class Alloc>
 		bool operator==(const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs)
 		{
 			if (lhs.size() != rhs.size())
@@ -150,10 +171,10 @@ namespace ft {
 					return (0);
 			return (1);
 		}
-	template<class T, class Alloc>
+	template <class T, class Alloc>
 		bool operator!=(const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs)
 		{ return (!(lhs == rhs)); }
-	template<class T, class Alloc>
+	template <class T, class Alloc>
 		bool operator<(const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs)
 		{
 			for (int i = 0, size = std::min(lhs.size(), rhs.size()); i < size; i++)
@@ -161,10 +182,10 @@ namespace ft {
 					return (1);
 			return (lhs.size() < rhs.size());
 		}
-	template<class T, class Alloc>
+	template <class T, class Alloc>
 		bool operator>=(const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs)
 		{ return (!(lhs < rhs)); }
-	template<class T, class Alloc>
+	template <class T, class Alloc>
 		bool operator>(const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs)
 		{
 			for (int i = 0, size = std::min(lhs.size(), rhs.size()); i < size; i++)
@@ -172,10 +193,10 @@ namespace ft {
 					return (1);
 			return (lhs.size() > rhs.size());
 		}
-	template<class T, class Alloc>
+	template <class T, class Alloc>
 		bool operator<=(const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs)
 		{ return (!(lhs > rhs)); }
 
-	template<class T, class Alloc>
+	template <class T, class Alloc>
 		void swap(ft::vector<T,Alloc>& lhs, ft::vector<T,Alloc>& rhs) { lhs.swap(rhs); }
 }

@@ -6,7 +6,7 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/07 18:36:15 by mberger-          #+#    #+#             */
-/*   Updated: 2022/01/11 13:18:49 by matubu           ###   ########.fr       */
+/*   Updated: 2022/01/15 13:45:02 by mberger-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,13 +16,11 @@
 #include <exception> // std::error
 #include <cstring> // memcpy
 
-#pragma GCC optimize ("O3")
-
 #define likely(x)      __builtin_expect(x, 1)
 #define unlikely(x)    __builtin_expect(x, 0)
 
 namespace ft {
-	template <class T, class Alloc = std::allocator<T>>
+	template <class T, class Alloc = std::allocator<T> >
 	class vector {
 		public:
 			//Types
@@ -46,15 +44,19 @@ namespace ft {
 			pointer	end;
 		public:
 			//Constructor
-			vector(void) : allocator() { start = curr = end = NULL; }
-			explicit vector(const Alloc &alloc) : allocator(alloc) { start = curr = end = NULL; }
-			//explicit vector(size_type count,
-			//	const T &value = T(),
-			//	const Allocator &alloc = Allocator()) {}
+			vector(void) : allocator(), start(NULL), curr(NULL), end(NULL) {}
+			explicit vector(const Alloc &alloc) : allocator(alloc), start(NULL), curr(NULL), end(NULL) {}
+			explicit vector(size_type count, const T &value = T(), const Alloc &alloc = Alloc())
+				: allocator(alloc), start(NULL), curr(NULL), end(NULL) {
+				reserve(count);
+				curr = start + count;
+				while (count--)
+					start[count]  = value;
+			}
 			//template<class InputIt>
 			//vector(InputIt first, InputIt last,
-			//		const Allocator &alloc = Allocator()) {}
-			vector(const vector &other) : vector() {
+			//		const Alloc &alloc = Alloc()) {}
+			vector(const vector &other) : allocator(other.allocator), start(NULL), curr(NULL), end(NULL) {
 				size_type n = other.size();
 				reserve(n);
 				memcpy(start, other.start, n * sizeof(T));
@@ -132,3 +134,43 @@ namespace ft {
 			};
 	};
 }
+
+template<class T, class Alloc>
+bool operator==(const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs)
+{
+	if (lhs.size() != rhs.size())
+		return (0);
+	for (int i = lhs.size(); i--;)
+		if (lhs[i] != rhs[i])
+			return (0);
+	return (1);
+}
+template<class T, class Alloc>
+bool operator!=(const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs)
+{ return (!(lhs == rhs)); }
+
+template<class T, class Alloc>
+bool operator<(const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs)
+{
+	for (int i = 0, size = std::min(lhs.size(), rhs.size()); i < size; i++)
+		if (lhs[i] < rhs[i])
+			return (1);
+	return (lhs.size() < rhs.size());
+}
+
+template<class T, class Alloc>
+bool operator>=(const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs)
+{ return (!(lhs < rhs)); }
+
+template<class T, class Alloc>
+bool operator>(const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs)
+{
+	for (int i = 0, size = std::min(lhs.size(), rhs.size()); i < size; i++)
+		if (lhs[i] > rhs[i])
+			return (1);
+	return (lhs.size() > rhs.size());
+}
+
+template<class T, class Alloc>
+bool operator<=(const ft::vector<T,Alloc>& lhs, const ft::vector<T,Alloc>& rhs)
+{ return (!(lhs > rhs)); }

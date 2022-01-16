@@ -15,7 +15,7 @@
 
 #define RUN(_namespace, _vec, _cmd) { \
 	_namespace::vector<TYPE> &vec = _vec; \
-	int i = 0; \
+	int i = 0; (void)i; \
 	_cmd; \
 	DEBUG(_vec, _namespace); \
 }
@@ -43,20 +43,32 @@
 	std::cout << ENDL; \
 }
 
-int	main()
+int	main()//int argc, char **argv)
 {
-	std::vector<TYPE> real, real_bench;
-	ft::vector<TYPE> mine, mine_bench;
+	{
+		std::vector<TYPE> real, real_bench;
+		ft::vector<TYPE> mine, mine_bench;
 
-	TEST(vec.push_back(1));
-	TEST(vec.pop_back());
-	TEST(vec.push_back(3));
-	TEST(vec.push_back(2));
-	TEST(vec.reserve(5));
-	TEST(vec.clear());
-	TEST(vec.resize(1));
-	TEST(vec.push_back(i));
-	TEST(vec[i + 1] += 2);
-	TEST(vec[i]++);
-	TEST(vec.erase(vec.end() - 2));
+		TEST(vec.push_back(1));
+		TEST(vec.pop_back());
+		TEST(vec.push_back(3));
+		TEST(vec.push_back(2));
+		TEST(vec.reserve(5));
+		TEST(vec.clear());
+		TEST(vec.resize(1));
+		TEST(vec.push_back(i));
+		TEST(vec[i + 1] += 2);
+		TEST(vec[i]++);
+		TEST(vec.erase(vec.end() - 2));
+		TEST(vec.push_back(i+3));
+		TEST(vec.push_back(i+2));
+		TEST(vec.push_back(i+1));
+		TEST(vec.erase(vec.end() - 3, vec.end() - 1));
+	}
+	//if (argc)
+	//{
+	//	char *cmd = ("leaks " + std::string(argv[0])).c_str();
+	//	std::cout << cmd << ENDL;
+	//	system(cmd);
+	//}
 }

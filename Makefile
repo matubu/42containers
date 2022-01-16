@@ -1,4 +1,4 @@
-FLAGS=-Wall -Werror -Wextra -fsanitize=address
+FLAGS=-Wall -Werror -Wextra
 
 all:
 	g++ $(FLAGS) main.cpp

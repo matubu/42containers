@@ -6,7 +6,7 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/07 18:36:15 by mberger-          #+#    #+#             */
-/*   Updated: 2022/01/15 19:57:21 by mberger-         ###   ########.fr       */
+/*   Updated: 2022/01/16 12:19:11 by mberger-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,10 +138,19 @@ namespace ft {
 
 			//Modifiers
 			void		clear() { curr = start; }
-			//iterator	insert(iterator pos, const T& value) {}
+			iterator	insert(iterator pos, const T& value) {
+				size_type	idx = pos - begin();
+				if (unlikely(size() >= capacity()))
+					reserve(capacity() << 1 | !capacity());
+				std::cout << "idx: " << idx << ", size:" << (size() - idx) << std::endl;
+				memmove(start + idx + 1, start + idx, ((size() - idx) * sizeof(T)));
+				curr++;
+				start[idx] = value;
+				return (iterator(start + idx));
+			}
 			//void insert(iterator pos, size_type count, const T& value) {}
-			//template< class InputIt >
-			//void insert( iterator pos, InputIt first, InputIt last ) {}
+			//template<class InputIt>
+			//void insert(iterator pos, InputIt first, InputIt last) {}
 			void		push_back(const T &value) {
 				if (unlikely(size() >= capacity()))
 					reserve(capacity() << 1 | !capacity());

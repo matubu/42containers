@@ -6,7 +6,7 @@
 /*   By: matubu <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/09 21:38:11 by matubu            #+#    #+#             */
-/*   Updated: 2022/01/15 20:08:27 by mberger-         ###   ########.fr       */
+/*   Updated: 2022/01/16 12:18:31 by mberger-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 #include "vector.hpp"
 //#include "stack.hpp"
 
-#define ITER 5000000 // 5 millions
+#define ITER 1000000 // 1 millions
 #define ENDL "\033[0m\n"
 
 template<class T>
@@ -168,4 +168,17 @@ int	main(void)
 	std::cout << "reverse mine:" << ENDL;
 	for (ft::vector<int>::reverse_iterator it = mine.rbegin(); it != mine.rend(); it++)
 		std::cout << "\t- " << *it << ENDL;
+
+
+	DEBUG(real);
+	std::cout << *real.insert(real.begin(), 5) << ENDL;
+	DEBUG(real);
+	std::cout << *real.insert(real.begin() + 8, 5) << ENDL;
+	DEBUG(real);
+
+	DEBUG(mine);
+	std::cout << *mine.insert(mine.begin(), 5) << ENDL;
+	DEBUG(mine);
+	std::cout << *mine.insert(mine.begin() + 8, 5) << ENDL;
+	DEBUG(mine);
 }

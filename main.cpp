@@ -6,7 +6,7 @@
 /*   By: matubu <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/09 21:38:11 by matubu            #+#    #+#             */
-/*   Updated: 2022/01/16 12:18:31 by mberger-         ###   ########.fr       */
+/*   Updated: 2022/01/16 13:26:19 by mberger-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 
 #define ITER 1000000 // 1 millions
 #define ENDL "\033[0m\n"
+#define TYPE float
 
 template<class T>
 void	at(T &vector, size_t n)
@@ -69,12 +70,11 @@ void	at(T &vector, size_t n)
 	SPED(mine.cmd); \
 	std::cout << ENDL
 
-
 //TODO try with string
 int	main(void)
 {
-	std::vector<int>	real;
-	ft::vector<int>		mine;
+	std::vector<TYPE>	real;
+	ft::vector<TYPE>		mine;
 
 	DEBUG(real);
 	DEBUG(mine);
@@ -101,8 +101,8 @@ int	main(void)
 	DEBUG(real);
 	DEBUG(mine);
 
-	std::vector<int>	real_copy(real);
-	ft::vector<int>		mine_copy(mine);
+	std::vector<TYPE>	real_copy(real);
+	ft::vector<TYPE>		mine_copy(mine);
 
 	DEBUG(real_copy);
 	DEBUG(mine_copy);
@@ -121,8 +121,8 @@ int	main(void)
 	TEST(pop_back());
 
 	std::cout << "\n\n-----> _copy = notcopy" << ENDL;
-	std::vector<int>	*real_asgn = &(real_copy = real);
-	ft::vector<int>		*mine_asgn = &(mine_copy = mine);
+	std::vector<TYPE>	*real_asgn = &(real_copy = real);
+	ft::vector<TYPE>		*mine_asgn = &(mine_copy = mine);
 	DEBUG((*real_asgn));
 	DEBUG((*mine_asgn));
 
@@ -131,8 +131,8 @@ int	main(void)
 	DEBUG(real_copy);
 	DEBUG(mine_copy);
 
-	std::vector<int>	real_len_7_fill_5(7, 5);
-	ft::vector<int>		mine_len_7_fill_5(7, 5);
+	std::vector<TYPE>	real_len_7_fill_5(7, 5);
+	ft::vector<TYPE>		mine_len_7_fill_5(7, 5);
 
 	DEBUG(real_len_7_fill_5);
 	DEBUG(mine_len_7_fill_5);
@@ -157,18 +157,17 @@ int	main(void)
 	mine[6] = 7;
 	
 	std::cout << "real:" << ENDL;
-	for (std::vector<int>::iterator it = real.begin(); it != real.end(); it++)
+	for (std::vector<TYPE>::iterator it = real.begin(); it != real.end(); it++)
 		std::cout << "\t- " << *it << ENDL;
 	std::cout << "mine:" << ENDL;
-	for (ft::vector<int>::iterator it = mine.begin(); it != mine.end(); it++)
+	for (ft::vector<TYPE>::iterator it = mine.begin(); it != mine.end(); it++)
 		std::cout << "\t- " << *it << ENDL;
 	std::cout << "reverse real:" << ENDL;
-	for (std::vector<int>::reverse_iterator it = real.rbegin(); it != real.rend(); it++)
+	for (std::vector<TYPE>::reverse_iterator it = real.rbegin(); it != real.rend(); it++)
 		std::cout << "\t- " << *it << ENDL;
 	std::cout << "reverse mine:" << ENDL;
-	for (ft::vector<int>::reverse_iterator it = mine.rbegin(); it != mine.rend(); it++)
+	for (ft::vector<TYPE>::reverse_iterator it = mine.rbegin(); it != mine.rend(); it++)
 		std::cout << "\t- " << *it << ENDL;
-
 
 	DEBUG(real);
 	std::cout << *real.insert(real.begin(), 5) << ENDL;
@@ -181,4 +180,6 @@ int	main(void)
 	DEBUG(mine);
 	std::cout << *mine.insert(mine.begin() + 8, 5) << ENDL;
 	DEBUG(mine);
+
+	TEST(assign(real.begin(), real.begin() + 2))
 }

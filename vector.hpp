@@ -6,7 +6,7 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/07 18:36:15 by mberger-          #+#    #+#             */
-/*   Updated: 2022/01/16 12:19:11 by mberger-         ###   ########.fr       */
+/*   Updated: 2022/01/16 13:25:04 by mberger-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,9 +54,16 @@ namespace ft {
 				while (count--)
 					start[count]  = value;
 			}
-			//template<class InputIt>
-			//vector(InputIt first, InputIt last,
-			//		const Alloc &alloc = Alloc()) {}
+			template<class Iter>
+			vector(Iter first, Iter last, const Alloc &alloc = Alloc(),
+					typename std::enable_if<!std::is_integral<Iter>::value, Iter>::type* = nullptr)
+				: allocator(alloc), start(NULL), curr(NULL), last(NULL) {
+				size_type count = last - first;
+				reserve(count);
+				curr = start + count;
+				while (count--)
+					start[count] = first[count];
+			}
 			vector(const vector &other) : allocator(other.allocator), start(NULL), curr(NULL), last(NULL) {
 				size_type n = other.size();
 				reserve(n);
@@ -85,14 +92,15 @@ namespace ft {
 				while (count--)
 					start[count] = value;
 			}
-			//template <class InputIt>
-			//void assign(InputIt first, InputIt last)
-			//{
-			//	curr = start;
-			//	reserve(last - first);
-			//	while (first < last)
-			//		push_back(*first++);
-			//}
+			template <class Iter>
+			void assign(Iter first, Iter last,
+					typename std::enable_if<!std::is_integral<Iter>::value, Iter>::type* = nullptr)
+			{
+				curr = start;
+				reserve(last - first);
+				while (first < last)
+					push_back(*first++);
+			}
 
 			allocator_type	get_allocator() const { return (allocator); };
 
@@ -149,8 +157,8 @@ namespace ft {
 				return (iterator(start + idx));
 			}
 			//void insert(iterator pos, size_type count, const T& value) {}
-			//template<class InputIt>
-			//void insert(iterator pos, InputIt first, InputIt last) {}
+			//template<class Iter>
+			//void insert(iterator pos, Iter first, Iter last) {}
 			void		push_back(const T &value) {
 				if (unlikely(size() >= capacity()))
 					reserve(capacity() << 1 | !capacity());

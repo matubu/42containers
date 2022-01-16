@@ -6,7 +6,7 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/07 18:36:15 by mberger-          #+#    #+#             */
-/*   Updated: 2022/01/16 13:25:04 by mberger-         ###   ########.fr       */
+/*   Updated: 2022/01/16 15:04:40 by mberger-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,6 +159,9 @@ namespace ft {
 			//void insert(iterator pos, size_type count, const T& value) {}
 			//template<class Iter>
 			//void insert(iterator pos, Iter first, Iter last) {}
+			iterator erase(iterator pos)
+			{ memcpy(&(*pos), &(*pos) + 1, (curr-- - &(*pos))); return (pos); }
+			//iterator erase(iterator first, iterator last);
 			void		push_back(const T &value) {
 				if (unlikely(size() >= capacity()))
 					reserve(capacity() << 1 | !capacity());

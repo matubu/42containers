@@ -1,185 +1,62 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: matubu <marvin@42.fr>                      +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/01/09 21:38:11 by matubu            #+#    #+#             */
-/*   Updated: 2022/01/16 13:26:19 by mberger-         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
-#include <iostream>
 #include <iomanip>
-#include <time.h>
+#include <iostream>
 #include <vector>
-//#include <stack>
 #include "vector.hpp"
-//#include "stack.hpp"
 
-#define ITER 1000000 // 1 millions
-#define ENDL "\033[0m\n"
-#define TYPE float
+#define ITER 1000000
+#define ENDL "\033[0m" << "\n"
+#define TYPE int
 
-template<class T>
-void	at(T &vector, size_t n)
-{
-	try { vector.at(n); std::cout << "  \033[94mat\033[0m(" << n << ") -> \033[33m" << vector.at(n) << ENDL; }
-	catch (const std::exception &e) { std::cout << "  \033[94mat\033[0m(" << n << ") -> \033[91mOut of range" << ENDL; }
+#define DEBUG(_vec, _namespace) \
+	std::cout << " - \033[92m" << #_namespace << ENDL; \
+	std::cout << "    [\033[33m" << _vec.size() << "\033[0m/\033[33m" << _vec.capacity() << "\033[0m] \033[0m \033[90m(" << _vec.data() << ")" << ENDL; \
+	for (size_t i = 0; i < _vec.size(); i++) \
+		std::cout << "    - [\033[33m" << i << "\033[0m] -> \033[33m" << _vec[i] << ENDL; \
+
+#define RUN(_namespace, _vec, _cmd) { \
+	_namespace::vector<TYPE> &vec = _vec; \
+	int i = 0; \
+	_cmd; \
+	DEBUG(_vec, _namespace); \
 }
 
-#define DEBUG(vector) { \
-	std::cout << "<\033[92m" << #vector << "\033[0m>" << ENDL; \
-	std::cout << "  \033[94mdata\033[0m() -> \033[33m" << vector.data() << ENDL; \
-	size_t n = vector.size(); \
-	at(vector, 0); \
-	at(vector, 1); \
-	at(vector, n - 1); \
-	at(vector, n); \
-	if (n) \
-	{ \
-		std::cout << "  \033[94mfront\033[0m() -> \033[33m" << vector.front() << ENDL; \
-		std::cout << "  \033[94mlast\033[0m() -> \033[33m" << vector.back() << ENDL; \
-	} \
-	while (n--) \
-		std::cout << "    - [\033[33m" << n << "\033[0m] -> \033[33m" << vector[n] << ENDL; \
-	std::cout << "  \033[94mmax_size\033[0m() -> \033[33m" << vector.max_size() << ENDL; \
-	std::cout << "  \033[94mcapacity\033[0m() -> \033[33m" << vector.capacity() << ENDL; \
-	std::cout << "  \033[94mempty\033[0m() -> \033[36m" << (vector.empty() ? "true" : "false") << ENDL; \
-	std::cout << "  \033[94msize\033[0m() -> \033[33m" << vector.size() << ENDL; \
-}
-
-#define TEST(cmd) \
-	std::cout << "\n\n-----> " << #cmd << ENDL; \
-	real.cmd; \
-	DEBUG(real); \
-	mine.cmd; \
-	DEBUG(mine)
-
-#define SPED(cmd) { \
-	std::cout << (strncmp(#cmd, "real", 4) ? "\033[36m" : "\033[91m"); \
+#define BENCH(_return, _namespace, _vec, _cmd) { \
+	_namespace::vector<TYPE> &vec = _vec; \
 	clock_t start = clock(); \
-	for(int i = 0; i < ITER; i++) cmd; \
-	std::cout << std::setw(25) << #cmd << " * " << ITER << " -> " \
-		<< ((double)(clock() - start) / CLOCKS_PER_SEC * 1000) << "ms" << ENDL; \
-	}
+	for(int i = 0; i < ITER; i++) _cmd; \
+	_return = (double)(clock() - start) / CLOCKS_PER_SEC * 1000; \
+}
 
-#define PERF(cmd) \
-	SPED(real.cmd); \
-	SPED(mine.cmd); \
-	std::cout << ENDL
+#define SHOW(_this_ms, _other_ms, _namespace) \
+	std::cout << (_this_ms <= _other_ms ? "\033[92m" : "\033[91m") \
+		<< std::setw(3) << #_namespace << " -> " << _this_ms << "ms   \033[90m(" << ITER << " times)" << ENDL;
 
-//TODO try with string
-int	main(void)
+#define TEST(cmd) { \
+	std::cout << ENDL << "\033[94m" << #cmd << ENDL; \
+	RUN(std, real, cmd); \
+	RUN(ft, mine, cmd); \
+	double	std_ms, ft_ms; \
+	BENCH(std_ms, std, real_bench, cmd); \
+	BENCH(ft_ms, ft, mine_bench, cmd); \
+	SHOW(std_ms, ft_ms, std); \
+	SHOW(ft_ms, std_ms, ft); \
+	std::cout << ENDL; \
+}
+
+int	main()
 {
-	std::vector<TYPE>	real;
-	ft::vector<TYPE>		mine;
+	std::vector<TYPE> real, real_bench;
+	ft::vector<TYPE> mine, mine_bench;
 
-	DEBUG(real);
-	DEBUG(mine);
-
-	TEST(clear());
-	TEST(reserve(1));
-	TEST(push_back(1));
-	TEST(push_back(2));
-	TEST(push_back(3));
-	TEST(pop_back());
-	TEST(resize(5));
-	TEST(resize(2));
-	TEST(resize(1));
-	TEST(pop_back());
-	TEST(reserve(100));
-
-	PERF(push_back(i));
-	PERF(pop_back());
-	PERF(clear());
-	PERF(resize(i + 1));
-	SPED(real[i]++); SPED(mine[i]++); std::cout << ENDL;
-	PERF(resize(ITER - i));
-
-	DEBUG(real);
-	DEBUG(mine);
-
-	std::vector<TYPE>	real_copy(real);
-	ft::vector<TYPE>		mine_copy(mine);
-
-	DEBUG(real_copy);
-	DEBUG(mine_copy);
-
-	TEST(push_back(1));
-
-	std::cout << "\n\n-----> swap()" << ENDL;
-	real.swap(real_copy);
-	mine.swap(mine_copy);
-
-	DEBUG(real);
-	DEBUG(mine);
-	DEBUG(real_copy);
-	DEBUG(mine_copy);
-
-	TEST(pop_back());
-
-	std::cout << "\n\n-----> _copy = notcopy" << ENDL;
-	std::vector<TYPE>	*real_asgn = &(real_copy = real);
-	ft::vector<TYPE>		*mine_asgn = &(mine_copy = mine);
-	DEBUG((*real_asgn));
-	DEBUG((*mine_asgn));
-
-	DEBUG(real);
-	DEBUG(mine);
-	DEBUG(real_copy);
-	DEBUG(mine_copy);
-
-	std::vector<TYPE>	real_len_7_fill_5(7, 5);
-	ft::vector<TYPE>		mine_len_7_fill_5(7, 5);
-
-	DEBUG(real_len_7_fill_5);
-	DEBUG(mine_len_7_fill_5);
-
-	std::cout << (real > real_len_7_fill_5) << " (>) " << (mine > mine_len_7_fill_5) << ENDL;
-	std::cout << (real == real_len_7_fill_5) << " (==)  " << (mine == mine_len_7_fill_5) << ENDL;
-	std::cout << (real < real_len_7_fill_5) << " (<) " << (mine < mine_len_7_fill_5) << ENDL;
-	std::cout << (real != real_len_7_fill_5) << " (!=) " << (mine != mine_len_7_fill_5) << ENDL;
-	std::cout << (real >= real_len_7_fill_5) << " (>=) " << (mine >= mine_len_7_fill_5) << ENDL;
-	std::cout << (real <= real_len_7_fill_5) << " (<=) " << (mine <= mine_len_7_fill_5) << ENDL;
-
-	std::swap(real, real_len_7_fill_5);
-	ft::swap(mine, mine_len_7_fill_5);
-
-	DEBUG(real);
-	DEBUG(mine);
-
-	TEST(assign(3, 4))
-	TEST(assign(7, 8))
-
-	real[6] = 7;
-	mine[6] = 7;
-	
-	std::cout << "real:" << ENDL;
-	for (std::vector<TYPE>::iterator it = real.begin(); it != real.end(); it++)
-		std::cout << "\t- " << *it << ENDL;
-	std::cout << "mine:" << ENDL;
-	for (ft::vector<TYPE>::iterator it = mine.begin(); it != mine.end(); it++)
-		std::cout << "\t- " << *it << ENDL;
-	std::cout << "reverse real:" << ENDL;
-	for (std::vector<TYPE>::reverse_iterator it = real.rbegin(); it != real.rend(); it++)
-		std::cout << "\t- " << *it << ENDL;
-	std::cout << "reverse mine:" << ENDL;
-	for (ft::vector<TYPE>::reverse_iterator it = mine.rbegin(); it != mine.rend(); it++)
-		std::cout << "\t- " << *it << ENDL;
-
-	DEBUG(real);
-	std::cout << *real.insert(real.begin(), 5) << ENDL;
-	DEBUG(real);
-	std::cout << *real.insert(real.begin() + 8, 5) << ENDL;
-	DEBUG(real);
-
-	DEBUG(mine);
-	std::cout << *mine.insert(mine.begin(), 5) << ENDL;
-	DEBUG(mine);
-	std::cout << *mine.insert(mine.begin() + 8, 5) << ENDL;
-	DEBUG(mine);
-
-	TEST(assign(real.begin(), real.begin() + 2))
+	TEST(vec.push_back(1));
+	TEST(vec.pop_back());
+	TEST(vec.push_back(3));
+	TEST(vec.push_back(2));
+	TEST(vec.reserve(5));
+	TEST(vec.clear());
+	TEST(vec.resize(1));
+	TEST(vec.push_back(i));
+	TEST(vec[i + 1] += 2);
+	TEST(vec[i]++);
+	TEST(vec.erase(vec.end() - 2));
 }

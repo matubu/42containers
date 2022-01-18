@@ -9,7 +9,7 @@ all:
 	@$(ECHO) "---> compiling sources ⚙️  <---" $(ENDL)
 	@$(MAKE) $(NAME)
 %.o: %.cpp
-	g++ $(FLAGS) -c $^ -o $@
+	g++ $(FLAG) -c $^ -o $@
 $(NAME): $(OBJS)
 	g++ $(FLAG) $(OBJS) -o $(NAME)
 run: all

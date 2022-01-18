@@ -14,7 +14,7 @@
 
 #include <memory> // std::allocator
 #include <exception> // std::error
-#include <cstring> // memcpy
+#include <cstring> // memmove
 #include "iterator.hpp" // ft::reverse_iterator
 
 #define likely(x)      __builtin_expect(x, 1)
@@ -37,7 +37,7 @@ namespace ft {
 			typedef typename ft::reverse_iterator<const_iterator>  const_reverse_iterator;
 			typedef typename std::ptrdiff_t                        difference_type;
 			typedef typename std::size_t                           size_type;
-		protected:
+		private:
 			//Data
 			Alloc	allocator;
 			pointer	start;
@@ -67,7 +67,7 @@ namespace ft {
 			vector(const vector &other) : allocator(other.allocator), start(NULL), curr(NULL), last(NULL) {
 				size_type n = other.size();
 				reserve(n);
-				memcpy(start, other.start, n * sizeof(T));
+				memmove(start, other.start, n * sizeof(T));
 				curr = start + n;
 			}
 	
@@ -79,7 +79,7 @@ namespace ft {
 				size_type n = other.size();
 				curr = start;
 				reserve(n);
-				memcpy(start, other.start, n * sizeof(T));
+				memmove(start, other.start, n * sizeof(T));
 				curr = start + n;
 				return (*this);
 			}
@@ -139,7 +139,7 @@ namespace ft {
 				pointer		old = start;
 				last = (start = allocator.allocate(new_cap)) + new_cap;
 				curr = start + n;
-				memcpy(start, old, n * sizeof(T));
+				memmove(start, old, n * sizeof(T));
 				allocator.deallocate(old, cap);
 			}
 			size_type	capacity() const { return (last - start); }
@@ -150,20 +150,37 @@ namespace ft {
 				size_type	idx = pos - begin();
 				if (unlikely(size() >= capacity()))
 					reserve(capacity() << 1 | !capacity());
-				std::cout << "idx: " << idx << ", size:" << (size() - idx) << std::endl;
 				memmove(start + idx + 1, start + idx, ((size() - idx) * sizeof(T)));
 				curr++;
 				start[idx] = value;
 				return (iterator(start + idx));
 			}
-			//void insert(iterator pos, size_type count, const T& value) {}
-			//template<class Iter>
-			//void insert(iterator pos, Iter first, Iter last) {}
+			void insert(iterator pos, size_type count, const T& value) {
+				size_type	idx = pos - begin();
+				if (unlikely(size() + count > capacity()))
+					reserve(size() + count <= capacity() << 1 ? capacity() << 1 : size() + count);
+				memmove(start + idx + count, start + idx, ((size() - idx) * sizeof(T)));
+				curr += count;
+				while (count--)
+					start[idx + count] = value;
+			}
+			template<class Iter>
+			void insert(iterator pos, Iter first, Iter last,
+					typename std::enable_if<!std::is_integral<Iter>::value, Iter>::type* = nullptr) {
+				size_type	idx = pos - begin();
+				size_type	count = last - first;
+				if (unlikely(size() + count > capacity()))
+					reserve(size() + count <= capacity() << 1 ? capacity() << 1 : size() + count);
+				memmove(start + idx + count, start + idx, ((size() - idx) * sizeof(T)));
+				curr += count;
+				while (count--)
+					start[idx + count] = first[count];
+			}
 			iterator erase(iterator pos)
-			{ memcpy(&(*pos), &(*pos) + 1, (curr-- - &(*pos))); return (pos); }
+			{ memmove(&(*pos), &(*pos) + 1, (curr-- - &(*pos))); return (pos); }
 			iterator erase(iterator first, iterator last)
 			{
-				memcpy(&(*first), &(*last), (curr - &(*last)) * sizeof(T));
+				memmove(&(*first), &(*last), (curr - &(*last)) * sizeof(T));
 				curr -= &(*last) - &(*first);
 				return (first);
 			};

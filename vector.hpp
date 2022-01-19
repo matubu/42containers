@@ -12,10 +12,11 @@
 
 #pragma once
 
-#include <memory> // std::allocator
-#include <exception> // std::error
+#include <memory> // allocator
+#include <exception> // error
 #include <cstring> // memmove
-#include "iterator.hpp" // ft::reverse_iterator
+#include "iterator.hpp" // reverse_iterator
+#include "utils.hpp" // is_integral enable_if
 
 #define likely(x)      __builtin_expect(x, 1)
 #define unlikely(x)    __builtin_expect(x, 0)
@@ -56,7 +57,7 @@ namespace ft {
 			}
 			template<class Iter>
 			vector(Iter first, Iter last, const Alloc &alloc = Alloc(),
-					typename std::enable_if<!std::is_integral<Iter>::value, Iter>::type* = nullptr)
+					typename ft::enable_if<!ft::is_integral<Iter>::value>::type* = ft_nullptr)
 				: allocator(alloc), start(NULL), curr(NULL), last(NULL) {
 				size_type count = last - first;
 				reserve(count);
@@ -94,9 +95,10 @@ namespace ft {
 			}
 			template <class Iter>
 			void assign(Iter first, Iter last,
-					typename std::enable_if<!std::is_integral<Iter>::value, Iter>::type* = nullptr)
+					typename ft::enable_if<!ft::is_integral<Iter>::value>::type* = ft_nullptr)
 			{
 				curr = start;
+				if (first > last) std::swap(first, last);
 				reserve(last - first);
 				while (first < last)
 					push_back(*first++);
@@ -166,7 +168,7 @@ namespace ft {
 			}
 			template<class Iter>
 			void insert(iterator pos, Iter first, Iter last,
-					typename std::enable_if<!std::is_integral<Iter>::value, Iter>::type* = nullptr) {
+					typename ft::enable_if<!ft::is_integral<Iter>::value>::type* = ft_nullptr) {
 				size_type	idx = pos - begin();
 				size_type	count = last - first;
 				if (unlikely(size() + count > capacity()))

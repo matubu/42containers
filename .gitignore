@@ -1,2 +1,5 @@
 a.out
 .vscode
+**/*.o
+ft_containers-unit-test
+containers

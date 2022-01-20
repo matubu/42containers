@@ -117,7 +117,7 @@ namespace ft {
 			iterator				begin() { return (iterator(start)); }
 			const_iterator			begin() const { return (iterator(start)); }
 			iterator				end() { return (iterator(curr)); }
-			const_reverse_iterator	end() const { return (iterator(curr)); }
+			const_iterator	        end() const { return (iterator(curr)); }
 			reverse_iterator		rbegin() { return (reverse_iterator(curr)); }
 			const_reverse_iterator	rbegin() const { return (const_reverse_iterator(curr)); }
 			reverse_iterator		rend() { return (reverse_iterator(start)); }
@@ -157,8 +157,9 @@ namespace ft {
 				if (unlikely(size() + count > capacity()))
 					reserve(size() + count <= capacity() << 1 ? capacity() << 1 : size() + count);
 				memmove(start + idx + count, start + idx, ((size() - idx) * sizeof(T)));
+				curr += count;
 				while (count--)
-					*curr++ = value;
+					start[idx + count] = value;
 			}
 			template <class Iter>
 			void insert(iterator pos, Iter first, Iter last,
@@ -168,8 +169,9 @@ namespace ft {
 				if (unlikely(size() + count > capacity()))
 					reserve(size() + count <= capacity() << 1 ? capacity() << 1 : size() + count);
 				memmove(start + idx + count, start + idx, ((size() - idx) * sizeof(T)));
+				curr += count;
 				while (count--)
-					*curr++ = *first++;
+					start[idx + count] = *first++;
 			}
 			iterator erase(iterator pos)
 			{ memmove(&(*pos), &(*pos) + 1, (curr-- - &(*pos))); return (pos); }

@@ -91,9 +91,9 @@ namespace ft {
 			random_access_iterator &operator--() { ptr--; return (*this); }
 			random_access_iterator operator++(int) { random_access_iterator tmp(ptr); ++ptr; return (tmp); }
 			random_access_iterator operator--(int) { random_access_iterator tmp(ptr); --ptr; return (tmp); }
-			difference_type        operator-(random_access_iterator<T> &other) const { return (ptr - other.ptr); }
 			random_access_iterator operator+(difference_type n) const { return (random_access_iterator(ptr + n)); }
 			random_access_iterator operator-(difference_type n) const { return (random_access_iterator(ptr - n)); }
+			difference_type        operator-(random_access_iterator<T> &other) const { return (ptr - other.ptr); }
 			random_access_iterator &operator+=(difference_type n) { ptr += n; return (*this); };
 			random_access_iterator &operator-=(difference_type n) { ptr -= n; return (*this);};
 	};
@@ -156,7 +156,7 @@ namespace ft {
 	template <class Iter>
 	reverse_iterator<Iter> operator+(typename reverse_iterator<Iter>::difference_type n,
 		const reverse_iterator<Iter>& it) { return (it + n); }
-	template <class Iterator>
-	typename reverse_iterator<Iterator>::difference_type operator-(const reverse_iterator<Iterator>& lhs,
-		const reverse_iterator<Iterator>& rhs) { return (lhs.base() - rhs.base()); }
+	template <class Iter>
+	typename reverse_iterator<Iter>::difference_type operator-(const reverse_iterator<Iter>& lhs,
+		const reverse_iterator<Iter>& rhs) { return (lhs.base() - rhs.base()); }
 }

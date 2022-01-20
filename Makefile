@@ -24,4 +24,12 @@ fclean: clean
 test: re run
 	@$(MAKE) fclean
 
-.PHONY: all run re clean fclean test
+TESTED_CONTAINER=vector
+
+fulltest: test
+	@$(MAKE) -C ft_containers_testers/testor1 $(TESTED_CONTAINER)
+	@./ft_containers_testers/testor2/test.sh $(TESTED_CONTAINER)
+	@./ft_containers_testers/testor3/do.sh $(TESTED_CONTAINER)
+	@./ft_containers-unit-test/start.sh $(TESTED_CONTAINER)
+
+.PHONY: all run re clean fclean test fulltest

@@ -46,9 +46,8 @@ namespace ft {
 
 	// Nullptr
 	typedef struct {
-		//void operator&() const = delete;
-		template <class T>             inline operator T*() const { return 0; }
-		template <class C, class T>    inline operator T C::*() const { return 0; }
+		template <class T>             inline operator T*() const { return (0); }
+		template <class C, class T>    inline operator T C::*() const { return (0); }
 	}	ft_nullptr_t;
 	ft_nullptr_t	ft_nullptr;
 }

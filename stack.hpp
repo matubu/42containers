@@ -40,10 +40,10 @@ namespace ft {
 		template <class InputIt, class Alloc>
 		//stack(InputIt first, InputIt last, const Alloc&);
 	
-		bool empty() const    { return c.empty(); }
-		size_type size()  const             { return c.size(); }
-		reference         top()             { return c.back(); }
-		const_reference   top() const       { return c.back(); }
+		bool empty() const    { return (c.empty()); }
+		size_type size()  const             { return (c.size()); }
+		reference         top()             { return (c.back()); }
+		const_reference   top() const       { return (c.back()); }
 		void push(const value_type& x)      { c.push_back(x); }
 		void push(value_type&& x)           { c.push_back(std::move(x)); }
 		void pop()                          { c.pop_back(); }

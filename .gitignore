@@ -5,5 +5,3 @@ a.out
 **/*.txt
 containers
 **/*README*
-ft_containers-unit-test
-ft_containers_testers

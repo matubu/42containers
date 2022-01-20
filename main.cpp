@@ -61,6 +61,7 @@ void	scope()
 
 	TEST(vec.front());
 	TEST(vec.push_back(1));
+    TEST(vec.push_back(*++vec.begin()));
 	TEST(vec.pop_back());
 	TEST(vec.push_back(3));
 	TEST(vec.push_back(2));

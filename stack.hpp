@@ -15,7 +15,7 @@
 #include "vector.hpp"
 
 namespace ft {
-	template <class T, class Container = ft::vector<T>>
+	template <class T, class Container = ft::vector<T> >
 	class stack {
 	public:
 		using value_type      = typename Container::value_type;
@@ -31,7 +31,7 @@ namespace ft {
 		stack() : stack(Container()) {}
 		explicit stack(const Container&);
 		explicit stack(Container&&);
-		//template<class InputIt> stack(InputIt first, InputIt last);
+		//template <class InputIt> stack(InputIt first, InputIt last);
 		template <class Alloc> explicit stack(const Alloc&);
 		template <class Alloc> stack(const Container&, const Alloc&);
 		template <class Alloc> stack(Container&&, const Alloc&);
@@ -52,13 +52,13 @@ namespace ft {
 	template <class Container>
 		stack(Container) -> stack<typename Container::value_type, Container>;
 	
-	//template<class InputIt>
+	//template <class InputIt>
 	//	stack(InputIt, InputIt) -> stack</*iter-value-type*/<InputIt>>;
 	
 	template <class Container, class Allocator>
 		stack(Container, Allocator) -> stack<typename Container::value_type, Container>;
 	
-	//template<class InputIt, class Allocator>
+	//template <class InputIt, class Allocator>
 	//	stack(InputIt, InputIt, Allocator)
 	//	-> stack</*iter-value-type*/<InputIt>, deque</*iter-value-type*/<InputIt>,
 	//			Allocator>>;

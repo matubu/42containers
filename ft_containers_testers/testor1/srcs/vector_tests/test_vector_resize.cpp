@@ -6,7 +6,7 @@
 /*   By: bvalette <bvalette@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/17 09:51:42 by bvalette          #+#    #+#             */
-/*   Updated: 2021/07/02 14:32:43 by bvalette         ###   ########.fr       */
+/*   Updated: 2022/01/22 13:41:17 by matubu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,11 +93,15 @@ test_vector_resize( void )	{
 
 		std::cout << SUBTITLE << "[ STD: resize("<< std_c0.max_size() << ") Max size, will throw exception ]" << RESET_COLOR << std::endl;
 			try { std_c0.resize(std_c0.max_size()); }
-				catch ( std::exception & e) { std::cout << "STD GOT EXCEPTION RIGHT: " << e.what() << std::endl;}
 				catch ( std::bad_alloc & e) { std::cout << "STD GOT EXCEPTION RIGHT: " << e.what() << std::endl;}
+				catch ( std::exception & e) { std::cout << "STD GOT EXCEPTION RIGHT: " << e.what() << std::endl;}
 		try {
 			std::cout << SUBTITLE << "[ FT: resize("<< ft_c0.max_size() << ") Max size, will throw exception ]" << RESET_COLOR << std::endl;
 			ft_c0.resize(ft_c0.max_size());
+			testBool( false, __FILE__, __LINE__);
+		}
+		catch (  std::length_error & e )	{
+			std::cout << "Exception thrown: std::length_error, Wrong !" << std::endl;
 			testBool( false, __FILE__, __LINE__);
 		}
 		catch (  std::bad_alloc & e )	{
@@ -107,10 +111,6 @@ test_vector_resize( void )	{
 		catch (  std::exception & e )	{
 			std::cout << "Exception thrown: std::exception, should be bad_alloc but it's ok..." << std::endl;
 			testBool( true, __FILE__, __LINE__);
-		}
-		catch (  std::length_error & e )	{
-			std::cout << "Exception thrown: std::length_error, Wrong !" << std::endl;
-			testBool( false, __FILE__, __LINE__);
 		}
 	}
 	{

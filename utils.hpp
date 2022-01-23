@@ -6,7 +6,7 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/18 21:12:56 by mberger-          #+#    #+#             */
-/*   Updated: 2022/01/18 21:12:59 by mberger-         ###   ########.fr       */
+/*   Updated: 2022/01/22 21:31:38 by matubu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,13 +41,12 @@ namespace ft {
 	template <>        struct is_integral<bool>               : public true_type<bool> {};
 
 	// Enable if
-    template <bool Condition, class T = void>  struct enable_if           {};
-    template <class T>                         struct enable_if<true, T>  { typedef T type; };
+	template <bool Condition, class T = void>  struct enable_if           {};
+	template <class T>                         struct enable_if<true, T>  { typedef T type; };
 
 	// Nullptr
 	typedef struct {
 		template <class T>             inline operator T*() const { return (0); }
 		template <class C, class T>    inline operator T C::*() const { return (0); }
 	}	ft_nullptr_t;
-	ft_nullptr_t	ft_nullptr;
 }

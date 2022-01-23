@@ -5,7 +5,6 @@
 
 #define ITER 100000 // one hundred thousand
 #define ENDL "\033[0m" << "\n"
-#define TYPE int
 
 #define DEBUG(_vec, _namespace) \
 	std::cout << " - \033[92m" << #_namespace << ENDL; \
@@ -39,16 +38,20 @@
 	std::cout << (_this_ms <= _other_ms ? "\033[92m" : "\033[91m") \
 		<< std::setw(3) << #_namespace << " -> " << _this_ms << "ms   \033[90m(" << ITER * 32 << " times)" << ENDL;
 
+#define INIT() \
+	std::vector<TYPE> real, real_bench; \
+	ft::vector<TYPE> mine, mine_bench;
+
 #define TEST(cmd) { \
 	std::cout << ENDL << "\033[94m" << #cmd << ENDL; \
 	RUN(std, real, cmd); \
 	RUN(ft, mine, cmd); \
 	double	std_ms, ft_ms; \
-	std::cout << "\033[94m["; \
+	std::cout << "\033[94m"; \
 	BENCH(std_ms, std, real_bench, cmd); \
 	std::cout << "\033[91m"; \
 	BENCH(ft_ms, ft, mine_bench, cmd); \
-	std::cout << "]\33[2K\r"; \
+	std::cout << "\33[2K\r"; \
 	SHOW(std_ms, ft_ms, std); \
 	SHOW(ft_ms, std_ms, ft); \
 	std::cout << ENDL; \
@@ -56,33 +59,42 @@
 
 void	scope()
 {
-	std::vector<TYPE> real, real_bench;
-	ft::vector<TYPE> mine, mine_bench;
+	{
+		#define TYPE int
+		INIT();
 
-	TEST(vec.front());
-	TEST(vec.push_back(1));
-    TEST(vec.push_back(*vec.begin()++));
-	TEST(vec.pop_back());
-	TEST(vec.push_back(3));
-	TEST(vec.push_back(2));
-	TEST(vec.reserve(5));
-	TEST(vec.clear());
-	TEST(vec.resize(1));
-	TEST(vec.push_back(i));
-	TEST(vec[i + 1] += 2);
-	TEST(vec[i]++);
-	TEST(vec.erase(vec.end() - 2));
-	TEST(vec.push_back(i+3));
-	TEST(vec.push_back(i+2));
-	TEST(vec.push_back(i+1));
-	TEST(vec.erase(vec.end() - 3, vec.end() - 1));
-	#undef ITER
-	#define ITER 50 // fifteen
-	TEST(vec.insert(vec.begin() + 1, 7, i + 7));
-	TEST(vec.insert(vec.begin(), vec.begin() + 1, vec.begin() + 3));
+		TEST(vec.front());
+		TEST(vec.push_back(1));
+		TEST(vec.push_back(*vec.begin()));
+		TEST(vec.pop_back());
+		TEST(vec.push_back(3));
+		TEST(vec.push_back(2));
+		TEST(vec.reserve(5));
+		TEST(vec.clear());
+		TEST(vec.resize(1));
+		TEST(vec.push_back(i));
+		TEST(vec[i + 1] += 2);
+		TEST(vec[i]++);
+		TEST(vec.erase(vec.end() - 2));
+		TEST(vec.push_back(i+3));
+		TEST(vec.push_back(i+2));
+		TEST(vec.push_back(i+1));
+		TEST(vec.erase(vec.end() - 3, vec.end() - 1));
+		#undef ITER
+		#define ITER 10 // fifteen
+		TEST(vec.insert(vec.begin() + 1, 7, i + 7));
+		TEST(vec.insert(vec.begin(), vec.begin() + 1, vec.begin() + 3));
+	}
+	{
+		#undef TYPE
+		#define TYPE std::string
+		INIT();
+
+		TEST(vec.push_back("hello World"))
+	}
 }
 
-int	main(int argc, char **argv)
+int	main(void)
 {
 	scope();
 	#ifdef __APPLE__

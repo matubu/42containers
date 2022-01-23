@@ -9,4 +9,4 @@ capacity changed: 64
 capacity changed: 128
 making bar grow:
 capacity changed: 100
-allocator<T>::allocate(size_t n) 'n' exceeds maximum supported size
+vector::reserve

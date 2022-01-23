@@ -6,7 +6,7 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/07 18:36:15 by mberger-          #+#    #+#             */
-/*   Updated: 2022/01/16 18:34:20 by mberger-         ###   ########.fr       */
+/*   Updated: 2022/01/22 21:30:04 by matubu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 #include <algorithm> // min
 #include <memory> // allocator
-#include <exception> // error
+#include <stdexcept> // error
 #include <cstring> // memmove
 #include "iterator.hpp" // reverse_iterator
 #include "utils.hpp" // is_integral enable_if
@@ -57,7 +57,7 @@ namespace ft {
 			}
 			template <class Iter>
 			vector(Iter first, Iter last, const Alloc &alloc = Alloc(),
-					typename ft::enable_if<!ft::is_integral<Iter>::value>::type* = ft_nullptr)
+					typename ft::enable_if<!ft::is_integral<Iter>::value>::type * = ft_nullptr_t())
 				: allocator(alloc), start(NULL), curr(NULL), last(NULL) {
 				size_type count = last - first;
 				reserve(count);
@@ -92,7 +92,7 @@ namespace ft {
 			}
 			template <class Iter>
 			void assign(Iter first, Iter last,
-					typename ft::enable_if<!ft::is_integral<Iter>::value>::type* = ft_nullptr) {
+					typename ft::enable_if<!ft::is_integral<Iter>::value>::type * = ft_nullptr_t()) {
 				curr = start;
 				if (first > last) std::swap(first, last);
 				reserve(last - first);
@@ -111,13 +111,13 @@ namespace ft {
 			reference		back()                          { return (curr[-1]); };
 			const_reference	back() const                    { return (curr[-1]); };
 			T				*data()                         { return (start); }
-			const T	*data() const                           { return (start); }
+			const T			*data() const                   { return (start); }
 
 			// Iterators
 			iterator				begin() { return (iterator(start)); }
 			const_iterator			begin() const { return (iterator(start)); }
 			iterator				end() { return (iterator(curr)); }
-			const_iterator	        end() const { return (iterator(curr)); }
+			const_iterator			end() const { return (iterator(curr)); }
 			reverse_iterator		rbegin() { return (reverse_iterator(curr)); }
 			const_reverse_iterator	rbegin() const { return (const_reverse_iterator(curr)); }
 			reverse_iterator		rend() { return (reverse_iterator(start)); }
@@ -127,17 +127,23 @@ namespace ft {
 			bool		empty() const { return (curr == start); }
 			size_type	size() const { return (curr - start); }
 			size_type	max_size() const { return (allocator.max_size()); }
-			void		reserve(size_type new_cap) {
+			pointer		_realloc(size_type new_cap) {
 				if (unlikely(new_cap <= capacity()))
-					return ;
+					return (NULL);
 				if (unlikely(new_cap > max_size()))
 					throw std::length_error("'n' exceeds maximum supported size");
-				size_type	n = size(), cap = capacity();
+				size_type	n = size();
 				pointer		old = start;
 				last = (start = allocator.allocate(new_cap)) + new_cap;
 				curr = start + n;
 				memmove(start, old, n * sizeof(T));
-				allocator.deallocate(old, cap);
+				return (old);
+			}
+			void		reserve(size_type new_cap) {
+				size_type	cap = capacity();
+				pointer		old = _realloc(new_cap);
+				if (old)
+					allocator.deallocate(old, cap);
 			}
 			size_type	capacity() const { return (last - start); }
 
@@ -163,15 +169,19 @@ namespace ft {
 			}
 			template <class Iter>
 			void insert(iterator pos, Iter first, Iter last,
-					typename ft::enable_if<!ft::is_integral<Iter>::value>::type* = ft_nullptr) {
+					typename ft::enable_if<!ft::is_integral<Iter>::value>::type * = ft_nullptr_t()) {
+				size_type	cap = capacity();
+				pointer		old = NULL;
 				size_type	idx = &(*pos) - start;
 				size_type	count = last - first;
 				if (unlikely(size() + count > capacity()))
-					reserve(size() + count <= capacity() << 1 ? capacity() << 1 : size() + count);
+					old = _realloc(size() + count <= capacity() << 1 ? capacity() << 1 : size() + count);
 				memmove(start + idx + count, start + idx, ((size() - idx) * sizeof(T)));
 				curr += count;
 				while (count--)
 					start[idx + count] = *first++;
+				if (old)
+					allocator.deallocate(old, cap);
 			}
 			iterator erase(iterator pos)
 			{ memmove(&(*pos), &(*pos) + 1, (curr-- - &(*pos))); return (pos); }
@@ -181,9 +191,13 @@ namespace ft {
 				return (first);
 			};
 			void		push_back(const T &value) {
+				size_type	cap = capacity();
+				pointer		old = NULL;
 				if (unlikely(size() >= capacity()))
-					reserve(capacity() << 1 | !capacity());
+					old = _realloc(capacity() << 1 | !capacity());
 				*curr++ = value;
+				if (old)
+					allocator.deallocate(old, cap);
 			}
 			void		pop_back() { curr--; }
 			void		resize(size_type count, T value = T()) {

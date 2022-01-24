@@ -3,7 +3,6 @@
 #include <vector>
 #include "vector.hpp"
 
-#define ITER 100000 // one hundred thousand
 #define ENDL "\033[0m" << "\n"
 
 #define DEBUG(_vec, _namespace) \
@@ -13,19 +12,19 @@
 		std::cout << "    - [\033[33m" << i << "\033[0m] -> \033[33m" << _vec[i] << ENDL; \
 
 #define RUN(_namespace, _vec, _cmd) { \
-	_namespace::vector<TYPE> &vec = _vec; \
+	_namespace::vector<type> &vec = _vec; \
 	int i = 0; (void)i; _cmd; \
 	DEBUG(_vec, _namespace); \
 }
 
 #define BENCH(_return, _namespace, _vec, _cmd) { \
-	_namespace::vector<TYPE> &vec = _vec; \
+	_namespace::vector<type> &vec = _vec; \
 	clock_t start = clock(); \
 	for (int j = 0; j < 32; j++) \
 	{ \
-		for (int y = 0; y < ITER; y++) \
+		for (int y = 0; y < iter; y++) \
 		{ \
-			int i = y + j * ITER; \
+			int i = y + j * iter; \
 			(void)i; \
 			_cmd; \
 		} \
@@ -36,11 +35,12 @@
 
 #define SHOW(_this_ms, _other_ms, _namespace) \
 	std::cout << (_this_ms <= _other_ms ? "\033[92m" : "\033[91m") \
-		<< std::setw(3) << #_namespace << " -> " << _this_ms << "ms   \033[90m(" << ITER * 32 << " times)" << ENDL;
+		<< std::setw(3) << #_namespace << " -> " << _this_ms << "ms   \033[90m(" << iter * 32 << " times)" << ENDL;
 
 #define INIT() \
-	std::vector<TYPE> real, real_bench; \
-	ft::vector<TYPE> mine, mine_bench;
+	std::vector<type> real, real_bench; \
+	ft::vector<type> mine, mine_bench; \
+	int iter = 100000;
 
 #define TEST(cmd) { \
 	std::cout << ENDL << "\033[94m" << #cmd << ENDL; \
@@ -57,53 +57,54 @@
 	std::cout << ENDL; \
 }
 
-void	scope()
+void	scope_int(void)
 {
-	{
-		#define TYPE int
-		INIT();
+	typedef int type;
+	INIT();
 
-		TEST(vec.front());
-		TEST(vec.push_back(1));
-		TEST(vec.push_back(*vec.begin()));
-		TEST(vec.pop_back());
-		TEST(vec.push_back(3));
-		TEST(vec.push_back(2));
-		TEST(vec.reserve(5));
-		TEST(vec.clear());
-		TEST(vec.resize(1));
-		TEST(vec.push_back(i));
-		TEST(vec[i + 1] += 2);
-		TEST(vec[i]++);
-		TEST(vec.erase(vec.end() - 2));
-		TEST(vec.push_back(i+3));
-		TEST(vec.push_back(i+2));
-		TEST(vec.push_back(i+1));
-		TEST(vec.erase(vec.end() - 3, vec.end() - 1));
-		#undef ITER
-		#define ITER 10 // fifteen
-		TEST(vec.insert(vec.begin() + 1, 7, i + 7));
-		TEST(vec.insert(vec.begin(), vec.begin() + 1, vec.begin() + 3));
-	}
-	{
-		#undef TYPE
-		#define TYPE std::string
-		INIT();
-
-		TEST(vec.push_back("hello World"))
-	}
+	TEST(vec.front());
+	TEST(vec.push_back(1));
+	TEST(vec.push_back(*vec.begin()));
+	TEST(vec.pop_back());
+	TEST(vec.push_back(3));
+	TEST(vec.push_back(2));
+	TEST(vec.reserve(5));
+	TEST(vec.clear());
+	TEST(vec.resize(1));
+	TEST(vec.push_back(i));
+	TEST(vec[i + 1] += 2);
+	TEST(vec[i]++);
+	TEST(vec.erase(vec.end() - 2));
+	TEST(vec.push_back(i+3));
+	TEST(vec.push_back(i+2));
+	TEST(vec.push_back(i+1));
+	TEST(vec.erase(vec.end() - 3, vec.end() - 1));
+	iter = 10;
+	TEST(vec.insert(vec.begin() + 1, 7, i + 7));
+	TEST(vec.insert(vec.begin(), vec.begin() + 1, vec.begin() + 3));
 }
 
-int	main(void)
+void scope_string(void)
 {
-	scope();
+	typedef std::string type;
+	INIT();
+
+	std::string s = "Hello World";
+	TEST(vec.push_back(s))
+}
+
+int	main(int argc, char **argv)
+{
+	(void)argc;
+	(void)argv;
+	scope_int();
+	scope_string();
 	#ifdef __APPLE__
-	if (argc)
-	{
-		const char	*cmd = ("leaks " + std::string(argv[0]).substr(2)).c_str();
-		std::cout << cmd << ENDL;
-		system(cmd);
-	}
+	if (argc <= 0)
+		return (1);
+	std::string cmd = "leaks " + std::string(argv[0]).substr(2);
+	std::cout << cmd << ENDL;
+	system(cmd.c_str());
 	#endif
 	return (0);
 }

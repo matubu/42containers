@@ -6,7 +6,7 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/07 18:36:15 by mberger-          #+#    #+#             */
-/*   Updated: 2022/01/22 21:30:04 by matubu           ###   ########.fr       */
+/*   Updated: 2022/01/26 15:42:13 by mberger-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,12 +15,9 @@
 #include <algorithm> // min
 #include <memory> // allocator
 #include <stdexcept> // error
-#include <cstring> // memmove
+#include <cstring> // mem(move/cpy)
 #include "iterator.hpp" // reverse_iterator
 #include "utils.hpp" // is_integral enable_if
-
-#define likely(x)      __builtin_expect(x, 1)
-#define unlikely(x)    __builtin_expect(x, 0)
 
 namespace ft {
 	template <class T, class Alloc = std::allocator<T> >
@@ -45,6 +42,19 @@ namespace ft {
 			pointer	start;
 			pointer	curr;
 			pointer	last;
+
+			pointer		_realloc(size_type new_cap) {
+				if (new_cap <= capacity())
+					return (NULL);
+				if (new_cap > max_size())
+					throw std::length_error("'n' exceeds maximum supported size");
+				size_type	n = size();
+				pointer		old = start;
+				last = (start = allocator.allocate(new_cap)) + new_cap;
+				curr = start + n;
+				memcpy(start, old, n * sizeof(T));
+				return (old);
+			}
 		public:
 			// Constructor
 			vector(void) : allocator(), start(NULL), curr(NULL), last(NULL) {}
@@ -53,7 +63,7 @@ namespace ft {
 				: allocator(alloc), start(NULL), curr(NULL), last(NULL) {
 				reserve(count);
 				while (count--)
-					*curr++ = value;
+					memcpy(curr++, &value, sizeof(T));
 			}
 			template <class Iter>
 			vector(Iter first, Iter last, const Alloc &alloc = Alloc(),
@@ -62,7 +72,7 @@ namespace ft {
 				size_type count = last - first;
 				reserve(count);
 				while (count--)
-					*curr++ = *first++;
+					memcpy(curr++, &*first++, sizeof(T));
 			}
 			vector(const vector &other) : allocator(other.allocator), start(NULL), curr(NULL), last(NULL) {
 				size_type n = other.size();
@@ -88,7 +98,7 @@ namespace ft {
 				curr = start;
 				reserve(count);
 				while (count--)
-					*curr++ = value;
+					memcpy(curr++, &value, sizeof(T));
 			}
 			template <class Iter>
 			void assign(Iter first, Iter last,
@@ -127,18 +137,6 @@ namespace ft {
 			bool		empty() const { return (curr == start); }
 			size_type	size() const { return (curr - start); }
 			size_type	max_size() const { return (allocator.max_size()); }
-			pointer		_realloc(size_type new_cap) {
-				if (unlikely(new_cap <= capacity()))
-					return (NULL);
-				if (unlikely(new_cap > max_size()))
-					throw std::length_error("'n' exceeds maximum supported size");
-				size_type	n = size();
-				pointer		old = start;
-				last = (start = allocator.allocate(new_cap)) + new_cap;
-				curr = start + n;
-				memmove(start, old, n * sizeof(T));
-				return (old);
-			}
 			void		reserve(size_type new_cap) {
 				size_type	cap = capacity();
 				pointer		old = _realloc(new_cap);
@@ -151,7 +149,7 @@ namespace ft {
 			void		clear() { curr = start; }
 			iterator	insert(iterator pos, const T& value) {
 				size_type	idx = &(*pos) - start;
-				if (unlikely(size() >= capacity()))
+				if (size() >= capacity())
 					reserve(capacity() << 1 | !capacity());
 				memmove(start + idx + 1, start + idx, (size() - idx) * sizeof(T));
 				curr++;
@@ -160,7 +158,7 @@ namespace ft {
 			}
 			void insert(iterator pos, size_type count, const T& value) {
 				size_type	idx = &(*pos) - start;
-				if (unlikely(size() + count > capacity()))
+				if (size() + count > capacity())
 					reserve(size() + count <= capacity() << 1 ? capacity() << 1 : size() + count);
 				memmove(start + idx + count, start + idx, ((size() - idx) * sizeof(T)));
 				curr += count;
@@ -174,7 +172,7 @@ namespace ft {
 				pointer		old = NULL;
 				size_type	idx = &(*pos) - start;
 				size_type	count = last - first;
-				if (unlikely(size() + count > capacity()))
+				if (size() + count > capacity())
 					old = _realloc(size() + count <= capacity() << 1 ? capacity() << 1 : size() + count);
 				memmove(start + idx + count, start + idx, ((size() - idx) * sizeof(T)));
 				curr += count;
@@ -193,17 +191,17 @@ namespace ft {
 			void		push_back(const T &value) {
 				size_type	cap = capacity();
 				pointer		old = NULL;
-				if (unlikely(size() >= capacity()))
-					old = _realloc(capacity() << 1 | !capacity());
-				*curr++ = value;
+				if (size() >= cap)
+					old = _realloc(cap << 1 | !cap);
+				memcpy(curr++, &value, sizeof(T));
 				if (old)
 					allocator.deallocate(old, cap);
 			}
 			void		pop_back() { curr--; }
 			void		resize(size_type count, T value = T()) {
-				if (likely(size() >= count)) { curr = start + count; return ; }
+				if (size() >= count) { curr = start + count; return ; }
 				reserve(count);
-				while (size() < count) *curr++ = value;
+				while (size() < count) memcpy(curr++, &value, sizeof(T));
 			}
 			void		swap(ft::vector<T,Alloc> &other) {
 				pointer	tmp = start;

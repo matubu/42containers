@@ -6,7 +6,7 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/15 14:38:23 by mberger-          #+#    #+#             */
-/*   Updated: 2022/01/22 19:04:00 by matubu           ###   ########.fr       */
+/*   Updated: 2022/01/24 11:51:23 by mberger-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,16 +142,16 @@ namespace ft {
 					const ft::reverse_iterator<Iter2> &rhs) { return (lhs.base() != rhs.base()); }
 	template <class Iter1, class Iter2>
 	bool operator<(const ft::reverse_iterator<Iter1> &lhs,
-					const ft::reverse_iterator<Iter2> &rhs) { return (lhs.base() < rhs.base()); }
+					const ft::reverse_iterator<Iter2> &rhs) { return (lhs.base() >= rhs.base()); }
 	template <class Iter1, class Iter2>
 	bool operator<=(const ft::reverse_iterator<Iter1> &lhs,
-					const ft::reverse_iterator<Iter2> &rhs) { return (lhs.base() <= rhs.base()); }
-	template <class Iter1, class Iter2>
-	bool operator>(const ft::reverse_iterator<Iter1> &lhs,
 					const ft::reverse_iterator<Iter2> &rhs) { return (lhs.base() > rhs.base()); }
 	template <class Iter1, class Iter2>
+	bool operator>(const ft::reverse_iterator<Iter1> &lhs,
+					const ft::reverse_iterator<Iter2> &rhs) { return (lhs.base() <= rhs.base()); }
+	template <class Iter1, class Iter2>
 	bool operator>=(const ft::reverse_iterator<Iter1> &lhs,
-					const ft::reverse_iterator<Iter2> &rhs) { return (lhs.base() >= rhs.base()); }
+					const ft::reverse_iterator<Iter2> &rhs) { return (lhs.base() < rhs.base()); }
 
 	template <class Iter>
 	reverse_iterator<Iter> operator+(typename reverse_iterator<Iter>::difference_type n,

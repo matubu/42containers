@@ -62,9 +62,10 @@ void	scope_int(void)
 	typedef int type;
 	INIT();
 
-	TEST(vec.front());
-	TEST(vec.push_back(1));
+	TEST(vec.insert(vec.end(), 1, 7));
+	/*TEST(vec.push_back(1));
 	TEST(vec.push_back(*vec.begin()));
+	TEST(vec.front());
 	TEST(vec.pop_back());
 	TEST(vec.push_back(3));
 	TEST(vec.push_back(2));
@@ -81,7 +82,7 @@ void	scope_int(void)
 	TEST(vec.erase(vec.end() - 3, vec.end() - 1));
 	iter = 10;
 	TEST(vec.insert(vec.begin() + 1, 7, i + 7));
-	TEST(vec.insert(vec.begin(), vec.begin() + 1, vec.begin() + 3));
+	TEST(vec.insert(vec.begin(), vec.begin() + 1, vec.begin() + 3));*/
 }
 
 void scope_string(void)

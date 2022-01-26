@@ -3,5 +3,6 @@ a.out
 **/*.o
 **/*.gch
 **/*.txt
+**/*.cpp_*
 containers
 **/*README*

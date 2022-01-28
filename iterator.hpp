@@ -6,7 +6,7 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/15 14:38:23 by mberger-          #+#    #+#             */
-/*   Updated: 2022/01/24 11:51:23 by mberger-         ###   ########.fr       */
+/*   Updated: 2022/01/26 16:50:13 by mberger-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,6 +97,25 @@ namespace ft {
 			random_access_iterator &operator+=(difference_type n) { ptr += n; return (*this); };
 			random_access_iterator &operator-=(difference_type n) { ptr -= n; return (*this);};
 	};
+
+	template <class Iter1, class Iter2>
+	bool operator==(const ft::random_access_iterator<Iter1> &lhs,
+					const ft::random_access_iterator<Iter2> &rhs) { return (&*lhs == &*rhs); }
+	template <class Iter1, class Iter2>
+	bool operator!=(const ft::random_access_iterator<Iter1> &lhs,
+					const ft::random_access_iterator<Iter2> &rhs) { return (&*lhs != &*rhs); }
+	template <class Iter1, class Iter2>
+	bool operator<(const ft::random_access_iterator<Iter1> &lhs,
+					const ft::random_access_iterator<Iter2> &rhs) { return (&*lhs >= &*rhs); }
+	template <class Iter1, class Iter2>
+	bool operator<=(const ft::random_access_iterator<Iter1> &lhs,
+					const ft::random_access_iterator<Iter2> &rhs) { return (&*lhs > &*rhs); }
+	template <class Iter1, class Iter2>
+	bool operator>(const ft::random_access_iterator<Iter1> &lhs,
+					const ft::random_access_iterator<Iter2> &rhs) { return (&*lhs <= &*rhs); }
+	template <class Iter1, class Iter2>
+	bool operator>=(const ft::random_access_iterator<Iter1> &lhs,
+					const ft::random_access_iterator<Iter2> &rhs) { return (&*lhs < &*rhs); }
 
 	// Reverse iterator
 	template <typename Iter>

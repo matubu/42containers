@@ -6,7 +6,7 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/07 18:36:15 by mberger-          #+#    #+#             */
-/*   Updated: 2022/01/26 15:42:13 by mberger-         ###   ########.fr       */
+/*   Updated: 2022/01/28 18:55:38 by mberger-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,13 @@
 #include <cstring> // mem(move/cpy)
 #include "iterator.hpp" // reverse_iterator
 #include "utils.hpp" // is_integral enable_if
+
+#define BEFORE_REALLOC \
+				size_type	cap = capacity(); \
+				pointer		old = NULL;
+#define AFTER_REALLOC \
+				if (old) \
+					allocator.deallocate(old, cap);
 
 namespace ft {
 	template <class T, class Alloc = std::allocator<T> >
@@ -69,7 +76,7 @@ namespace ft {
 			vector(Iter first, Iter last, const Alloc &alloc = Alloc(),
 					typename ft::enable_if<!ft::is_integral<Iter>::value>::type * = ft_nullptr_t())
 				: allocator(alloc), start(NULL), curr(NULL), last(NULL) {
-				size_type count = last - first;
+				difference_type count = &*last - &*first;
 				reserve(count);
 				while (count--)
 					memcpy(curr++, &*first++, sizeof(T));
@@ -138,64 +145,64 @@ namespace ft {
 			size_type	size() const { return (curr - start); }
 			size_type	max_size() const { return (allocator.max_size()); }
 			void		reserve(size_type new_cap) {
-				size_type	cap = capacity();
-				pointer		old = _realloc(new_cap);
-				if (old)
-					allocator.deallocate(old, cap);
+				BEFORE_REALLOC;
+				old = _realloc(new_cap);
+				AFTER_REALLOC;
 			}
 			size_type	capacity() const { return (last - start); }
 
 			// Modifiers
 			void		clear() { curr = start; }
 			iterator	insert(iterator pos, const T& value) {
+				BEFORE_REALLOC;
 				size_type	idx = &(*pos) - start;
 				if (size() >= capacity())
-					reserve(capacity() << 1 | !capacity());
+					old = _realloc(capacity() << 1 | !capacity());
 				memmove(start + idx + 1, start + idx, (size() - idx) * sizeof(T));
 				curr++;
 				start[idx] = value;
+				AFTER_REALLOC;
 				return (iterator(start + idx));
 			}
 			void insert(iterator pos, size_type count, const T& value) {
+				BEFORE_REALLOC;
 				size_type	idx = &(*pos) - start;
-				if (size() + count > capacity())
-					reserve(size() + count <= capacity() << 1 ? capacity() << 1 : size() + count);
-				memmove(start + idx + count, start + idx, ((size() - idx) * sizeof(T)));
-				curr += count;
-				while (count--)
-					start[idx + count] = value;
-			}
-			template <class Iter>
-			void insert(iterator pos, Iter first, Iter last,
-					typename ft::enable_if<!ft::is_integral<Iter>::value>::type * = ft_nullptr_t()) {
-				size_type	cap = capacity();
-				pointer		old = NULL;
-				size_type	idx = &(*pos) - start;
-				size_type	count = last - first;
 				if (size() + count > capacity())
 					old = _realloc(size() + count <= capacity() << 1 ? capacity() << 1 : size() + count);
 				memmove(start + idx + count, start + idx, ((size() - idx) * sizeof(T)));
 				curr += count;
 				while (count--)
-					start[idx + count] = *first++;
-				if (old)
-					allocator.deallocate(old, cap);
+					start[idx + count] = value;
+				AFTER_REALLOC;
 			}
+			template <class Iter>
+			void insert(iterator pos, Iter first, Iter last,
+					typename ft::enable_if<!ft::is_integral<Iter>::value>::type * = ft_nullptr_t()) {
+				ft::vector<T> tmp(*this);
+				size_type	idx = &(*pos) - start;
+				size_type	count = last - first;
+				if (size() + count > capacity())
+					tmp.reserve(size() + count <= capacity() << 1 ? capacity() << 1 : size() + count);
+				memmove(tmp.start + idx + count, tmp.start + idx, ((size() - idx) * sizeof(T)));
+				tmp.curr += count;
+				while (count--)
+					tmp.start[idx + count] = *first++;
+				this->swap(tmp);
+			}
+
 			iterator erase(iterator pos)
-			{ memmove(&(*pos), &(*pos) + 1, (curr-- - &(*pos))); return (pos); }
+			{memmove(&(*pos), &(*pos) + 1, (--curr - &(*pos)) * sizeof(T)); return (pos);}
 			iterator erase(iterator first, iterator last) {
 				memmove(&(*first), &(*last), (curr - &(*last)) * sizeof(T));
 				curr -= &(*last) - &(*first);
 				return (first);
 			};
 			void		push_back(const T &value) {
-				size_type	cap = capacity();
-				pointer		old = NULL;
+				BEFORE_REALLOC;
 				if (size() >= cap)
 					old = _realloc(cap << 1 | !cap);
 				memcpy(curr++, &value, sizeof(T));
-				if (old)
-					allocator.deallocate(old, cap);
+				AFTER_REALLOC;
 			}
 			void		pop_back() { curr--; }
 			void		resize(size_type count, T value = T()) {

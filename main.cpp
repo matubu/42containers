@@ -4,6 +4,9 @@
 #include "vector.hpp"
 
 #define ENDL "\033[0m" << "\n"
+#define NOBENCH
+
+bool success = true;
 
 #define DEBUG(_vec, _namespace) \
 	std::cout << " - \033[92m" << #_namespace << ENDL; \
@@ -17,7 +20,7 @@
 	DEBUG(_vec, _namespace); \
 }
 
-#define BENCH(_return, _namespace, _vec, _cmd) { \
+# define BENCH(_return, _namespace, _vec, _cmd) { \
 	_namespace::vector<type> &vec = _vec; \
 	clock_t start = clock(); \
 	for (int j = 0; j < 32; j++) \
@@ -42,10 +45,32 @@
 	ft::vector<type> mine, mine_bench; \
 	int iter = 100000;
 
-#define TEST(cmd) { \
+#define COMPARE(a, b) { \
+	bool some = false; \
+	if (a.size() == b.size()) { \
+		for (unsigned long i = 0; i < a.size(); i++) \
+			if (a[i] != b[i]) \
+				some = true; \
+	} \
+	else \
+		some = true; \
+	if (some) success = false; \
+	std::cout << (some ? "\033[101;30m" : "\033[102;30m") << " >>> " << (some ? "❌ " : "✅ ") << ENDL; \
+}
+
+#ifdef NOBENCH
+# define TEST(cmd) { \
 	std::cout << ENDL << "\033[94m" << #cmd << ENDL; \
 	RUN(std, real, cmd); \
 	RUN(ft, mine, cmd); \
+	COMPARE(real, mine); \
+}
+#else
+# define TEST(cmd) { \
+	std::cout << ENDL << "\033[94m" << #cmd << ENDL; \
+	RUN(std, real, cmd); \
+	RUN(ft, mine, cmd); \
+	COMPARE(real, mine); \
 	double	std_ms, ft_ms; \
 	std::cout << "\033[94m"; \
 	BENCH(std_ms, std, real_bench, cmd); \
@@ -56,33 +81,45 @@
 	SHOW(ft_ms, std_ms, ft); \
 	std::cout << ENDL; \
 }
+#endif
+
+#define CLEAR() (void)iter;
 
 void	scope_int(void)
 {
 	typedef int type;
-	INIT();
+	INIT()
 
-	TEST(vec.insert(vec.end(), 1, 7));
-	/*TEST(vec.push_back(1));
-	TEST(vec.push_back(*vec.begin()));
-	TEST(vec.front());
-	TEST(vec.pop_back());
-	TEST(vec.push_back(3));
-	TEST(vec.push_back(2));
-	TEST(vec.reserve(5));
-	TEST(vec.clear());
-	TEST(vec.resize(1));
-	TEST(vec.push_back(i));
-	TEST(vec[i + 1] += 2);
-	TEST(vec[i]++);
-	TEST(vec.erase(vec.end() - 2));
-	TEST(vec.push_back(i+3));
-	TEST(vec.push_back(i+2));
-	TEST(vec.push_back(i+1));
-	TEST(vec.erase(vec.end() - 3, vec.end() - 1));
+	TEST(vec.insert(vec.end(), 1, 7))
+	TEST(vec.push_back(1))
+	TEST(vec.push_back(*vec.begin()))
+	TEST(vec.front())
+	TEST(vec.pop_back())
+	TEST(vec.push_back(3))
+	TEST(vec.push_back(2))
+	TEST(vec.reserve(5))
+	TEST(vec.clear())
+	TEST(vec.resize(1))
+	TEST(vec.push_back(i))
+	TEST(vec[i + 1] += 2)
+	TEST(vec[i]++)
+	TEST(vec.erase(vec.end() - 2))
+	TEST(vec.push_back(i+3))
+	TEST(vec.push_back(i+2))
+	TEST(vec.push_back(i+1))
+	TEST(vec.erase(vec.end() - 3, vec.end() - 1))
 	iter = 10;
-	TEST(vec.insert(vec.begin() + 1, 7, i + 7));
-	TEST(vec.insert(vec.begin(), vec.begin() + 1, vec.begin() + 3));*/
+	TEST(vec.insert(vec.begin() + 1, 7, i + 7))
+	TEST(vec.insert(vec.begin(), vec.begin() + 1, vec.begin() + 3))
+	TEST(vec.erase(vec.begin() + 5))
+	TEST(vec.erase(vec.begin(), vec.begin() + 3))
+	TEST(vec.insert(vec.begin(), 200))
+	TEST(vec.insert(vec.begin(), 2, 300))
+	TEST(vec.insert(vec.begin() + 2, vec.begin(), vec.end()))
+	int	arr [] = { 501,502,503 };
+	TEST(vec.insert(vec.begin(), arr, arr + 3))
+
+	CLEAR()
 }
 
 void scope_string(void)
@@ -92,6 +129,7 @@ void scope_string(void)
 
 	std::string s = "Hello World";
 	TEST(vec.push_back(s))
+	CLEAR()
 }
 
 int	main(int argc, char **argv)
@@ -100,6 +138,11 @@ int	main(int argc, char **argv)
 	(void)argv;
 	scope_int();
 	scope_string();
+
+	if (success)
+		std::cout << ENDL << "\033[102;30m >>> Success <<< " << ENDL;
+	else
+		std::cout << ENDL << "\033[101;30m >>> Failure <<< " << ENDL;
 	#ifdef __APPLE__
 	if (argc <= 0)
 		return (1);

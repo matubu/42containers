@@ -6,7 +6,7 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/07 18:36:15 by mberger-          #+#    #+#             */
-/*   Updated: 2022/01/29 20:00:23 by matubu           ###   ########.fr       */
+/*   Updated: 2022/01/29 20:51:02 by matubu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,6 +75,7 @@ namespace ft {
 				: allocator(alloc), start(NULL), curr(NULL), last(NULL) {
 				reserve(count);
 				NCPY(curr, value, count);
+				curr += count;
 			}
 			template <class Iter>
 			vector(Iter first, Iter last, const Alloc &alloc = Alloc(),
@@ -83,6 +84,7 @@ namespace ft {
 				difference_type count = last - first;
 				reserve(count);
 				CPY(curr, first, count);
+				curr += count;
 			}
 			vector(const vector &other) : allocator(other.allocator), start(NULL), curr(NULL), last(NULL) {
 				size_type n = other.size();
@@ -126,8 +128,8 @@ namespace ft {
 			const_reference	operator[](size_type pos) const { return (start[pos]); }
 			reference		at(size_type n)                 { if (n >= size()) throw std::out_of_range("Out of range"); return (start[n]); }
 			const_reference	at(size_type n) const           { if (n >= size()) throw std::out_of_range("Out of range"); return (start[n]); }
-			reference		front()                         { return (start[0]); };
-			const_reference	front() const                   { return (start[0]); };
+			reference		front()                         { return (*start); };
+			const_reference	front() const                   { return (*start); };
 			reference		back()                          { return (curr[-1]); };
 			const_reference	back() const                    { return (curr[-1]); };
 			T				*data()                         { return (start); }

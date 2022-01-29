@@ -6,7 +6,7 @@
 /*   By: kmacquet <kmacquet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/02 13:07:06 by hbaudet           #+#    #+#             */
-/*   Updated: 2022/01/29 20:08:23 by matubu           ###   ########.fr       */
+/*   Updated: 2022/01/29 20:47:33 by matubu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -173,7 +173,13 @@ int main()
 	cout << "\nAT\n";
 	try
 	{
+		std::cout << MIKE.size() << std::endl;
+		std::cout << "at(2)" << std::endl;
+		std::cout << &MIKE.at(2) << std::endl;
+		std::cout << &MIKE.at(2).front() << ", " << MIKE.at(2).size() << ", " << MIKE.at(2).data() << std::endl;
+		std::cout << "half ok" << std::endl;
 		cout << MIKE.at(2).front() << '\n';
+		std::cout << "ok" << std::endl;
 		cout << MIKE.at(87).back() << '\n';
 	}
 	catch (std::out_of_range& oor)

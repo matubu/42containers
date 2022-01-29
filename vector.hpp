@@ -6,25 +6,30 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/07 18:36:15 by mberger-          #+#    #+#             */
-/*   Updated: 2022/01/28 18:55:38 by mberger-         ###   ########.fr       */
+/*   Updated: 2022/01/29 20:00:23 by matubu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-#include <algorithm> // min
 #include <memory> // allocator
 #include <stdexcept> // error
-#include <cstring> // mem(move/cpy)
 #include "iterator.hpp" // reverse_iterator
 #include "utils.hpp" // is_integral enable_if
 
-#define BEFORE_REALLOC \
-				size_type	cap = capacity(); \
-				pointer		old = NULL;
-#define AFTER_REALLOC \
-				if (old) \
-					allocator.deallocate(old, cap);
+#define ALLOC \
+	size_type	cap = capacity(); \
+	pointer		old = NULL;
+#define CLEANUP \
+	if (old) allocator.deallocate(old, cap);
+#define FOR(count) \
+	if (size() + count > capacity()) \
+		old = _realloc(size() + count <= capacity() << 1 ? capacity() << 1 : size() + count);
+#define SET(ptr, val) allocator.construct(ptr, val);
+#define CPY(a, b, n) {int pn = n; T *pa = a; T *pb = b; while (pn--) SET(pa++, *pb++);}
+#define RCPY(a, b, n) {int pn = n; T *pa = a; T *pb = b; while (pn--) SET(pa + pn, pb[pn]);}
+#define NCPY(a, val, n) {int pn = n; T *pa = a; while (pn--) SET(pa++, val);}
+#define MIN(a, b) (a < b) ? a : b
 
 namespace ft {
 	template <class T, class Alloc = std::allocator<T> >
@@ -59,7 +64,7 @@ namespace ft {
 				pointer		old = start;
 				last = (start = allocator.allocate(new_cap)) + new_cap;
 				curr = start + n;
-				memcpy(start, old, n * sizeof(T));
+				CPY(start, old, n);
 				return (old);
 			}
 		public:
@@ -69,22 +74,20 @@ namespace ft {
 			explicit vector(size_type count, const T &value = T(), const Alloc &alloc = Alloc())
 				: allocator(alloc), start(NULL), curr(NULL), last(NULL) {
 				reserve(count);
-				while (count--)
-					memcpy(curr++, &value, sizeof(T));
+				NCPY(curr, value, count);
 			}
 			template <class Iter>
 			vector(Iter first, Iter last, const Alloc &alloc = Alloc(),
 					typename ft::enable_if<!ft::is_integral<Iter>::value>::type * = ft_nullptr_t())
 				: allocator(alloc), start(NULL), curr(NULL), last(NULL) {
-				difference_type count = &*last - &*first;
+				difference_type count = last - first;
 				reserve(count);
-				while (count--)
-					memcpy(curr++, &*first++, sizeof(T));
+				CPY(curr, first, count);
 			}
 			vector(const vector &other) : allocator(other.allocator), start(NULL), curr(NULL), last(NULL) {
 				size_type n = other.size();
 				reserve(n);
-				memmove(start, other.start, n * sizeof(T));
+				CPY(start, other.start, n);
 				curr = start + n;
 			}
 	
@@ -96,7 +99,7 @@ namespace ft {
 				size_type n = other.size();
 				curr = start;
 				reserve(n);
-				memmove(start, other.start, n * sizeof(T));
+				CPY(start, other.start, n);
 				curr = start + n;
 				return (*this);
 			}
@@ -104,17 +107,17 @@ namespace ft {
 			void assign(size_type count, const T &value) {
 				curr = start;
 				reserve(count);
-				while (count--)
-					memcpy(curr++, &value, sizeof(T));
+				NCPY(start, value, count);
+				curr = start + count;
 			}
 			template <class Iter>
 			void assign(Iter first, Iter last,
 					typename ft::enable_if<!ft::is_integral<Iter>::value>::type * = ft_nullptr_t()) {
 				curr = start;
-				if (first > last) std::swap(first, last);
-				reserve(last - first);
-				while (first < last)
-					push_back(*first++);
+				size_type n = last - first;
+				reserve(n);
+				CPY(start, &*first, n);
+				curr = start + n;
 			}
 			allocator_type	get_allocator() const { return (allocator); };
 
@@ -145,121 +148,100 @@ namespace ft {
 			size_type	size() const { return (curr - start); }
 			size_type	max_size() const { return (allocator.max_size()); }
 			void		reserve(size_type new_cap) {
-				BEFORE_REALLOC;
+				ALLOC;
 				old = _realloc(new_cap);
-				AFTER_REALLOC;
+				CLEANUP;
 			}
 			size_type	capacity() const { return (last - start); }
 
 			// Modifiers
 			void		clear() { curr = start; }
 			iterator	insert(iterator pos, const T& value) {
-				BEFORE_REALLOC;
-				size_type	idx = &(*pos) - start;
-				if (size() >= capacity())
-					old = _realloc(capacity() << 1 | !capacity());
-				memmove(start + idx + 1, start + idx, (size() - idx) * sizeof(T));
+				size_type	idx = &*pos - start;
+				ALLOC FOR(1);
+				if (idx < size()) RCPY(start + idx + 1, start + idx, size() - idx);
 				curr++;
 				start[idx] = value;
-				AFTER_REALLOC;
+				CLEANUP;
 				return (iterator(start + idx));
 			}
 			void insert(iterator pos, size_type count, const T& value) {
-				BEFORE_REALLOC;
-				size_type	idx = &(*pos) - start;
-				if (size() + count > capacity())
-					old = _realloc(size() + count <= capacity() << 1 ? capacity() << 1 : size() + count);
-				memmove(start + idx + count, start + idx, ((size() - idx) * sizeof(T)));
+				size_type	idx = &*pos - start;
+				ALLOC FOR(count);
+				if (idx < size()) RCPY(start + idx + count, start + idx, size() - idx);
 				curr += count;
-				while (count--)
-					start[idx + count] = value;
-				AFTER_REALLOC;
+				NCPY(start + idx, value, count);
+				CLEANUP;
 			}
+			// https://stackoverflow.com/questions/14791984/appending-stdvector-to-itself-undefined-behavior
 			template <class Iter>
 			void insert(iterator pos, Iter first, Iter last,
 					typename ft::enable_if<!ft::is_integral<Iter>::value>::type * = ft_nullptr_t()) {
-				ft::vector<T> tmp(*this);
-				size_type	idx = &(*pos) - start;
+				size_type	idx = &*pos - start;
 				size_type	count = last - first;
-				if (size() + count > capacity())
-					tmp.reserve(size() + count <= capacity() << 1 ? capacity() << 1 : size() + count);
-				memmove(tmp.start + idx + count, tmp.start + idx, ((size() - idx) * sizeof(T)));
-				tmp.curr += count;
-				while (count--)
-					tmp.start[idx + count] = *first++;
-				this->swap(tmp);
+				ALLOC FOR(count);
+				if (idx < size()) RCPY(start + idx + count, start + idx, size() - idx);
+				curr += count;
+				CPY(start + idx, &*first, count);
+				CLEANUP;
 			}
-
 			iterator erase(iterator pos)
-			{memmove(&(*pos), &(*pos) + 1, (--curr - &(*pos)) * sizeof(T)); return (pos);}
+			{ CPY(&*pos, &*pos + 1, --curr - &*pos); return (pos); }
 			iterator erase(iterator first, iterator last) {
-				memmove(&(*first), &(*last), (curr - &(*last)) * sizeof(T));
-				curr -= &(*last) - &(*first);
+				CPY(&*first, &*last, curr - &*last);
+				curr -= &*last - &*first;
 				return (first);
 			};
 			void		push_back(const T &value) {
-				BEFORE_REALLOC;
-				if (size() >= cap)
-					old = _realloc(cap << 1 | !cap);
-				memcpy(curr++, &value, sizeof(T));
-				AFTER_REALLOC;
+				ALLOC FOR(1);
+				SET(curr++, value);
+				CLEANUP;
 			}
 			void		pop_back() { curr--; }
 			void		resize(size_type count, T value = T()) {
 				if (size() >= count) { curr = start + count; return ; }
 				reserve(count);
-				while (size() < count) memcpy(curr++, &value, sizeof(T));
+				NCPY(curr, value, count - size());
+				curr = start + count;
 			}
 			void		swap(ft::vector<T,Alloc> &other) {
-				pointer	tmp = start;
-				start = other.start;
-				other.start = tmp;
-
-				tmp = curr;
-				curr = other.curr;
-				other.curr = tmp;
-
-				tmp = last;
-				last = other.last;
-				other.last = tmp;
+				std::swap(start, other.start);
+				std::swap(curr, other.curr);
+				std::swap(last, other.last);
 			};
 	};
 
 	// Operators
 	template <class T, class Alloc>
 	bool operator==(const ft::vector<T,Alloc> &lhs, const ft::vector<T,Alloc> &rhs) {
-		if (lhs.size() != rhs.size())
-			return (0);
+		if (lhs.size() != rhs.size()) return (0);
 		for (int i = lhs.size(); i--;)
 			if (lhs[i] != rhs[i])
 				return (0);
 		return (1);
 	}
-
 	template <class T, class Alloc>
 	bool operator!=(const ft::vector<T,Alloc> &lhs, const ft::vector<T,Alloc> &rhs)
 	{ return (!(lhs == rhs)); }
 
 	template <class T, class Alloc>
 	bool operator<(const ft::vector<T,Alloc> &lhs, const ft::vector<T,Alloc> &rhs) {
-		for (int i = 0, size = std::min(lhs.size(), rhs.size()); i < size; i++)
+		for (int i = 0, size = MIN(lhs.size(), rhs.size()); i < size; i++)
 			if (lhs[i] < rhs[i])
 				return (1);
 		return (lhs.size() < rhs.size());
 	}
-
 	template <class T, class Alloc>
 	bool operator>=(const ft::vector<T,Alloc> &lhs, const ft::vector<T,Alloc> &rhs)
 	{ return (!(lhs < rhs)); }
 
 	template <class T, class Alloc>
 	bool operator>(const ft::vector<T,Alloc> &lhs, const ft::vector<T,Alloc> &rhs) {
-		for (int i = 0, size = std::min(lhs.size(), rhs.size()); i < size; i++)
+		for (int i = 0, size = MIN(lhs.size(), rhs.size()); i < size; i++)
 			if (lhs[i] > rhs[i])
 				return (1);
 		return (lhs.size() > rhs.size());
 	}
-
 	template <class T, class Alloc>
 	bool operator<=(const ft::vector<T,Alloc> &lhs, const ft::vector<T,Alloc> &rhs)
 	{ return (!(lhs > rhs)); }

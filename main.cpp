@@ -5,6 +5,8 @@
 
 #define ENDL "\033[0m" << "\n"
 #define NOBENCH
+#define DEFAULT_ITER 100000
+#define SLOW_ITER 10
 
 bool success = true;
 
@@ -43,7 +45,12 @@ bool success = true;
 #define INIT() \
 	std::vector<type> real, real_bench; \
 	ft::vector<type> mine, mine_bench; \
-	int iter = 100000;
+	int iter = DEFAULT_ITER;
+
+#define SLOW(cmd) \
+	iter = SLOW_ITER; \
+	cmd; \
+	iter = DEFAULT_ITER;
 
 #define COMPARE(a, b) { \
 	bool some = false; \
@@ -58,14 +65,6 @@ bool success = true;
 	std::cout << (some ? "\033[101;30m" : "\033[102;30m") << " >>> " << (some ? "❌ " : "✅ ") << ENDL; \
 }
 
-#ifdef NOBENCH
-# define TEST(cmd) { \
-	std::cout << ENDL << "\033[94m" << #cmd << ENDL; \
-	RUN(std, real, cmd); \
-	RUN(ft, mine, cmd); \
-	COMPARE(real, mine); \
-}
-#else
 # define TEST(cmd) { \
 	std::cout << ENDL << "\033[94m" << #cmd << ENDL; \
 	RUN(std, real, cmd); \
@@ -81,7 +80,6 @@ bool success = true;
 	SHOW(ft_ms, std_ms, ft); \
 	std::cout << ENDL; \
 }
-#endif
 
 #define CLEAR() (void)iter;
 
@@ -90,7 +88,11 @@ void	scope_int(void)
 	typedef int type;
 	INIT()
 
-	TEST(vec.insert(vec.end(), 1, 7))
+	TEST(vec.insert(vec.end(), 1, 1))
+	SLOW(
+		TEST(vec.insert(vec.begin(), 1, 3))
+	)
+	TEST(vec.insert(vec.end(), 1, 2))
 	TEST(vec.push_back(1))
 	TEST(vec.push_back(*vec.begin()))
 	TEST(vec.front())
@@ -108,17 +110,19 @@ void	scope_int(void)
 	TEST(vec.push_back(i+2))
 	TEST(vec.push_back(i+1))
 	TEST(vec.erase(vec.end() - 3, vec.end() - 1))
-	iter = 10;
-	TEST(vec.insert(vec.begin() + 1, 7, i + 7))
-	TEST(vec.insert(vec.begin(), vec.begin() + 1, vec.begin() + 3))
-	TEST(vec.erase(vec.begin() + 5))
-	TEST(vec.erase(vec.begin(), vec.begin() + 3))
-	TEST(vec.insert(vec.begin(), 200))
-	TEST(vec.insert(vec.begin(), 2, 300))
-	TEST(vec.insert(vec.begin() + 2, vec.begin(), vec.end()))
+	SLOW(
+		TEST(vec.insert(vec.begin() + 1, 7, i + 7))
+		TEST(vec.erase(vec.begin() + 5))
+		TEST(vec.erase(vec.begin(), vec.begin() + 3))
+		TEST(vec.insert(vec.begin(), 200))
+		TEST(vec.insert(vec.begin(), 2, 300))
+	)
 	int	arr [] = { 501,502,503 };
-	TEST(vec.insert(vec.begin(), arr, arr + 3))
-
+	TEST(vec.assign(5, 10))
+	TEST(vec.assign(arr, arr+2))
+	SLOW(
+		TEST(vec.insert(vec.begin(), arr, arr + 3))
+	)
 	CLEAR()
 }
 

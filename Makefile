@@ -1,7 +1,7 @@
 NAME=containers
 SRCS=main.cpp
 OBJS=$(SRCS:.cpp=.o)
-FLAG=-Wall -Werror -Wextra -std=c++98 -fsanitize=address
+FLAG=-Wall -Werror -Wextra -std=c++98 -O3 -DNDEBUG -fsanitize=address
 ECHO=echo "\033[92m"
 ENDL="\033[0m"
 

@@ -1,8 +1,0 @@
-17c17
-< foo::m const called [5]
----
-> foo::m called [5]
-27c27
-< foo::m const called [1]
----
-> foo::m called [1]

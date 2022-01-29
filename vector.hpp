@@ -6,7 +6,7 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/07 18:36:15 by mberger-          #+#    #+#             */
-/*   Updated: 2022/01/29 20:51:02 by matubu           ###   ########.fr       */
+/*   Updated: 2022/01/29 22:00:01 by matubu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -229,8 +229,8 @@ namespace ft {
 	template <class T, class Alloc>
 	bool operator<(const ft::vector<T,Alloc> &lhs, const ft::vector<T,Alloc> &rhs) {
 		for (int i = 0, size = MIN(lhs.size(), rhs.size()); i < size; i++)
-			if (lhs[i] < rhs[i])
-				return (1);
+			if (lhs[i] != rhs[i])
+				return (lhs[i] < rhs[i]);
 		return (lhs.size() < rhs.size());
 	}
 	template <class T, class Alloc>
@@ -240,8 +240,8 @@ namespace ft {
 	template <class T, class Alloc>
 	bool operator>(const ft::vector<T,Alloc> &lhs, const ft::vector<T,Alloc> &rhs) {
 		for (int i = 0, size = MIN(lhs.size(), rhs.size()); i < size; i++)
-			if (lhs[i] > rhs[i])
-				return (1);
+			if (lhs[i] != rhs[i])
+				return (lhs[i] > rhs[i]);
 		return (lhs.size() > rhs.size());
 	}
 	template <class T, class Alloc>

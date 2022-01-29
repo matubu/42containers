@@ -10,16 +10,17 @@
 
 bool success = true;
 
-#define DEBUG(_vec, _namespace) \
+#define DEBUG(_vec, _namespace) { \
 	std::cout << " - \033[92m" << #_namespace << ENDL; \
 	std::cout << "    [\033[33m" << _vec.size() << "\033[0m/\033[33m" << _vec.capacity() << "\033[0m] \033[0m \033[90m(" << _vec.data() << ")" << ENDL; \
 	for (size_t i = 0; i < _vec.size(); i++) \
 		std::cout << "    - [\033[33m" << i << "\033[0m] -> \033[33m" << _vec[i] << ENDL; \
+}
 
 #define RUN(_namespace, _vec, _cmd) { \
 	_namespace::vector<type> &vec = _vec; \
 	int i = 0; (void)i; _cmd; \
-	DEBUG(_vec, _namespace); \
+	if (debug) DEBUG(_vec, _namespace); \
 }
 
 # define BENCH(_return, _namespace, _vec, _cmd) { \
@@ -45,7 +46,8 @@ bool success = true;
 #define INIT() \
 	std::vector<type> real, real_bench; \
 	ft::vector<type> mine, mine_bench; \
-	int iter = DEFAULT_ITER;
+	int iter = DEFAULT_ITER; \
+	bool debug = true;
 
 #define SLOW(cmd) \
 	iter = SLOW_ITER; \
@@ -56,8 +58,7 @@ bool success = true;
 	bool some = false; \
 	if (a.size() == b.size()) { \
 		for (unsigned long i = 0; i < a.size(); i++) \
-			if (a[i] != b[i]) \
-				some = true; \
+			if (a[i] != b[i]) some = true; \
 	} \
 	else \
 		some = true; \
@@ -65,7 +66,12 @@ bool success = true;
 	std::cout << (some ? "\033[101;30m" : "\033[102;30m") << " >>> " << (some ? "❌ " : "✅ ") << ENDL; \
 }
 
-# define TEST(cmd) { \
+#define NO_DEBUG(cmd) \
+	debug = false; \
+	cmd; \
+	debug = true;
+
+#define TEST(cmd) { \
 	std::cout << ENDL << "\033[94m" << #cmd << ENDL; \
 	RUN(std, real, cmd); \
 	RUN(ft, mine, cmd); \
@@ -123,6 +129,10 @@ void	scope_int(void)
 	SLOW(
 		TEST(vec.insert(vec.begin(), arr, arr + 3))
 	)
+	SLOW(NO_DEBUG(
+		TEST(vec.resize(1000000))
+		TEST(vec.resize(1000001))
+	))
 	CLEAR()
 }
 

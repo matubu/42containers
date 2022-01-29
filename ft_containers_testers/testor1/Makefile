@@ -11,7 +11,7 @@ CC = g++
 OBJ_DIR = ./objs_$(NAME)/
 PCH_DIR = ./pchs_$(NAME)/
 
-CFLAGS += 
+CFLAGS += -fsanitize=address
 CFLAGS +=
 
 UNAME_S := $(shell uname -s)

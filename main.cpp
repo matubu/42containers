@@ -43,7 +43,7 @@ bool success = true;
 	std::cout << (_this_ms <= _other_ms ? "\033[92m" : "\033[91m") \
 		<< std::setw(3) << #_namespace << " -> " << _this_ms << "ms   \033[90m(" << iter * 32 << " times)" << ENDL;
 
-#define INIT() \
+#define NEW_TEST_SUITE() \
 	std::vector<type> real, real_bench; \
 	ft::vector<type> mine, mine_bench; \
 	int iter = DEFAULT_ITER; \
@@ -92,7 +92,7 @@ bool success = true;
 void	scope_int(void)
 {
 	typedef int type;
-	INIT()
+	NEW_TEST_SUITE()
 
 	TEST(vec.insert(vec.end(), 1, 1))
 	SLOW(
@@ -139,7 +139,7 @@ void	scope_int(void)
 void scope_string(void)
 {
 	typedef std::string type;
-	INIT();
+	NEW_TEST_SUITE();
 
 	std::string s = "Hello World";
 	TEST(vec.push_back(s))

@@ -6,7 +6,7 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/07 18:36:15 by mberger-          #+#    #+#             */
-/*   Updated: 2022/01/29 22:00:01 by matubu           ###   ########.fr       */
+/*   Updated: 2022/01/30 19:37:41 by matubu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,37 +17,39 @@
 #include "iterator.hpp" // reverse_iterator
 #include "utils.hpp" // is_integral enable_if
 
-#define ALLOC \
-	size_type	cap = capacity(); \
-	pointer		old = NULL;
-#define CLEANUP \
-	if (old) allocator.deallocate(old, cap);
-#define FOR(count) \
-	if (size() + count > capacity()) \
-		old = _realloc(size() + count <= capacity() << 1 ? capacity() << 1 : size() + count);
-#define SET(ptr, val) allocator.construct(ptr, val);
-#define CPY(a, b, n) {int pn = n; T *pa = a; T *pb = b; while (pn--) SET(pa++, *pb++);}
-#define RCPY(a, b, n) {int pn = n; T *pa = a; T *pb = b; while (pn--) SET(pa + pn, pb[pn]);}
-#define NCPY(a, val, n) {int pn = n; T *pa = a; while (pn--) SET(pa++, val);}
-#define MIN(a, b) (a < b) ? a : b
-
 namespace ft {
+	#define ALLOC \
+		size_type	cap = capacity(); \
+		pointer		old = NULL;
+	#define CLEANUP \
+		if (old) allocator.deallocate(old, cap);
+	#define FOR(count) \
+		if (size() + count > capacity()) \
+		old = _realloc(size() + count <= capacity() << 1 ? capacity() << 1 : size() + count);
+	#define SET(ptr, val) allocator.construct(ptr, val);
+	template <typename a_t, typename b_t> void CPY(a_t a, b_t b, int n)
+	#define CPY(a, b, n) {int pn = n; T *pa = a; T *pb = b; while (pn--) SET(pa++, *pb++);}
+	#define RCPY(a, b, n) {int pn = n; T *pa = a; T *pb = b; while (pn--) SET(pa + pn, pb[pn]);}
+	#define NCPY(a, val, n) {int pn = n; T *pa = a; while (pn--) SET(pa++, val);}
+	#define MIN(a, b) (a < b) ? a : b
+	#define INIT(alloc) allocator(alloc), start(NULL), curr(NULL), last(NULL)
+
 	template <class T, class Alloc = std::allocator<T> >
 	class vector {
 		public:
 			//Types
-			typedef T                                              value_type;
-			typedef Alloc                                          allocator_type;
-			typedef typename Alloc::reference                      reference;
-			typedef typename Alloc::const_reference                const_reference;
-			typedef typename Alloc::pointer                        pointer;
-			typedef typename Alloc::const_pointer                  const_pointer;
-			typedef typename ft::random_access_iterator<T>         iterator;
-			typedef typename ft::random_access_iterator<T>         const_iterator;
-			typedef typename ft::reverse_iterator<iterator>        reverse_iterator;
-			typedef typename ft::reverse_iterator<const_iterator>  const_reverse_iterator;
-			typedef typename std::ptrdiff_t                        difference_type;
-			typedef typename std::size_t                           size_type;
+			typedef T                                             value_type;
+			typedef Alloc                                         allocator_type;
+			typedef typename Alloc::reference                     reference;
+			typedef typename Alloc::const_reference               const_reference;
+			typedef typename Alloc::pointer                       pointer;
+			typedef typename Alloc::const_pointer                 const_pointer;
+			typedef typename ft::random_access_iterator<T>        iterator;
+			typedef typename ft::random_access_iterator<T>        const_iterator;
+			typedef typename ft::reverse_iterator<iterator>       reverse_iterator;
+			typedef typename ft::reverse_iterator<const_iterator> const_reverse_iterator;
+			typedef typename std::ptrdiff_t                       difference_type;
+			typedef typename std::size_t                          size_type;
 		private:
 			// Data
 			Alloc	allocator;
@@ -56,8 +58,7 @@ namespace ft {
 			pointer	last;
 
 			pointer		_realloc(size_type new_cap) {
-				if (new_cap <= capacity())
-					return (NULL);
+				if (new_cap <= capacity()) return (NULL);
 				if (new_cap > max_size())
 					throw std::length_error("'n' exceeds maximum supported size");
 				size_type	n = size();
@@ -69,10 +70,10 @@ namespace ft {
 			}
 		public:
 			// Constructor
-			vector(void) : allocator(), start(NULL), curr(NULL), last(NULL) {}
-			explicit vector(const Alloc &alloc) : allocator(alloc), start(NULL), curr(NULL), last(NULL) {}
+			vector(void) : INIT() {}
+			explicit vector(const Alloc &alloc) : INIT(alloc) {}
 			explicit vector(size_type count, const T &value = T(), const Alloc &alloc = Alloc())
-				: allocator(alloc), start(NULL), curr(NULL), last(NULL) {
+					: INIT(alloc) {
 				reserve(count);
 				NCPY(curr, value, count);
 				curr += count;
@@ -80,13 +81,13 @@ namespace ft {
 			template <class Iter>
 			vector(Iter first, Iter last, const Alloc &alloc = Alloc(),
 					typename ft::enable_if<!ft::is_integral<Iter>::value>::type * = ft_nullptr_t())
-				: allocator(alloc), start(NULL), curr(NULL), last(NULL) {
+					: INIT(alloc) {
 				difference_type count = last - first;
 				reserve(count);
 				CPY(curr, first, count);
-				curr += count;
+				curr = start + count;
 			}
-			vector(const vector &other) : allocator(other.allocator), start(NULL), curr(NULL), last(NULL) {
+			vector(const vector &other) : INIT(other.allocator) {
 				size_type n = other.size();
 				reserve(n);
 				CPY(start, other.start, n);
@@ -105,7 +106,6 @@ namespace ft {
 				curr = start + n;
 				return (*this);
 			}
-
 			void assign(size_type count, const T &value) {
 				curr = start;
 				reserve(count);

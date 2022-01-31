@@ -2,6 +2,10 @@
 #include <iostream>
 #include <vector>
 #include "vector.hpp"
+#include <stack>
+#include "stack.hpp"
+#include <map>
+#include "map.hpp"
 
 #define ENDL "\033[0m" << "\n"
 #define NOBENCH
@@ -89,6 +93,31 @@ bool success = true;
 
 #define CLEAR() (void)iter;
 
+void	scope_map(void)
+{
+	typedef ft::pair<std::string, std::string> type;
+	ft::map<std::string, std::string> map;
+
+	#define get(key) std::cout << "get(" key ") -> " << (map.find(key) ? *map.find(key) : "nil") << std::endl;
+	
+	get("0");
+
+	map.insert(type("1", "one"));
+	map.insert(type("2", "two"));
+	map.insert(type("1", "second one"));
+	map.insert(type("4", "four"));
+	map.insert(type("3", "three"));
+	map.insert(type("5", "five"));
+
+	get("0");
+	get("1");
+	get("2");
+	get("3");
+	get("4");
+	get("5");
+	get("6");
+}
+
 void	scope_int(void)
 {
 	typedef int type;
@@ -150,6 +179,7 @@ int	main(int argc, char **argv)
 {
 	(void)argc;
 	(void)argv;
+	scope_map();
 	scope_int();
 	scope_string();
 

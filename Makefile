@@ -24,12 +24,20 @@ fclean: clean
 test: re run
 	@$(MAKE) fclean
 
-TESTED_CONTAINER=vector
+define test
+	$(MAKE) -C ft_containers_testers/testor1 $(1) || echo "Error for testor 1"
+	cd ft_containers_testers/testor2 && ./test.sh $(1) || echo "Error for testor 2"
+	cd ft_containers_testers/testor3 && ./do.sh $(1) || echo "Error for testor 3"
+	cd ft_containers-unit-test && ./start.sh $(1) || echo "Error for unit testor"
+endef
 
-fulltest: test
-	$(MAKE) -C ft_containers_testers/testor1 $(TESTED_CONTAINER)
-	cd ft_containers_testers/testor2/ && ./test.sh $(TESTED_CONTAINER)
-	cd ft_containers_testers/testor3/ && ./do.sh $(TESTED_CONTAINER)
-	cd ft_containers-unit-test/ && ./start.sh $(TESTED_CONTAINER)
+vector:
+	$(call test,vector)
+stack:
+	$(call test,stack)
+map:
+	$(call test,map)
 
-.PHONY: all run re clean fclean test fulltest
+fulltest: test vector stack map
+
+.PHONY: all run re clean fclean test fulltest vector stack map

@@ -6,7 +6,7 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/07 18:36:15 by mberger-          #+#    #+#             */
-/*   Updated: 2022/01/30 19:37:41 by matubu           ###   ########.fr       */
+/*   Updated: 2022/01/31 19:48:51 by mberger-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,16 +21,11 @@ namespace ft {
 	#define ALLOC \
 		size_type	cap = capacity(); \
 		pointer		old = NULL;
-	#define CLEANUP \
-		if (old) allocator.deallocate(old, cap);
+	#define CLEANUP if (old) allocator.deallocate(old, cap);
 	#define FOR(count) \
 		if (size() + count > capacity()) \
 		old = _realloc(size() + count <= capacity() << 1 ? capacity() << 1 : size() + count);
 	#define SET(ptr, val) allocator.construct(ptr, val);
-	template <typename a_t, typename b_t> void CPY(a_t a, b_t b, int n)
-	#define CPY(a, b, n) {int pn = n; T *pa = a; T *pb = b; while (pn--) SET(pa++, *pb++);}
-	#define RCPY(a, b, n) {int pn = n; T *pa = a; T *pb = b; while (pn--) SET(pa + pn, pb[pn]);}
-	#define NCPY(a, val, n) {int pn = n; T *pa = a; while (pn--) SET(pa++, val);}
 	#define MIN(a, b) (a < b) ? a : b
 	#define INIT(alloc) allocator(alloc), start(NULL), curr(NULL), last(NULL)
 
@@ -65,9 +60,12 @@ namespace ft {
 				pointer		old = start;
 				last = (start = allocator.allocate(new_cap)) + new_cap;
 				curr = start + n;
-				CPY(start, old, n);
+				_cpy(start, old, n);
 				return (old);
 			}
+			template <typename a_t, typename b_t> void _cpy(a_t a, b_t b, int n) { while (n--) SET(a++, *b++); }
+			template <typename a_t, typename b_t> void _rcpy(a_t a, b_t b, int n) { while (n--) SET(a + n, b[n]); }
+			template <typename a_t> void _ncpy(a_t a, const T &val, int n) { while (n--) SET(a++, val); }
 		public:
 			// Constructor
 			vector(void) : INIT() {}
@@ -75,7 +73,7 @@ namespace ft {
 			explicit vector(size_type count, const T &value = T(), const Alloc &alloc = Alloc())
 					: INIT(alloc) {
 				reserve(count);
-				NCPY(curr, value, count);
+				_ncpy(curr, value, count);
 				curr += count;
 			}
 			template <class Iter>
@@ -84,13 +82,13 @@ namespace ft {
 					: INIT(alloc) {
 				difference_type count = last - first;
 				reserve(count);
-				CPY(curr, first, count);
+				_cpy(curr, first, count);
 				curr = start + count;
 			}
 			vector(const vector &other) : INIT(other.allocator) {
 				size_type n = other.size();
 				reserve(n);
-				CPY(start, other.start, n);
+				_cpy(start, other.start, n);
 				curr = start + n;
 			}
 	
@@ -102,14 +100,14 @@ namespace ft {
 				size_type n = other.size();
 				curr = start;
 				reserve(n);
-				CPY(start, other.start, n);
+				_cpy(start, other.start, n);
 				curr = start + n;
 				return (*this);
 			}
 			void assign(size_type count, const T &value) {
 				curr = start;
 				reserve(count);
-				NCPY(start, value, count);
+				_ncpy(start, value, count);
 				curr = start + count;
 			}
 			template <class Iter>
@@ -118,7 +116,7 @@ namespace ft {
 				curr = start;
 				size_type n = last - first;
 				reserve(n);
-				CPY(start, &*first, n);
+				_cpy(start, &*first, n);
 				curr = start + n;
 			}
 			allocator_type	get_allocator() const { return (allocator); };
@@ -161,7 +159,7 @@ namespace ft {
 			iterator	insert(iterator pos, const T& value) {
 				size_type	idx = &*pos - start;
 				ALLOC FOR(1);
-				if (idx < size()) RCPY(start + idx + 1, start + idx, size() - idx);
+				if (idx < size()) _rcpy(start + idx + 1, start + idx, size() - idx);
 				curr++;
 				start[idx] = value;
 				CLEANUP;
@@ -170,9 +168,9 @@ namespace ft {
 			void insert(iterator pos, size_type count, const T& value) {
 				size_type	idx = &*pos - start;
 				ALLOC FOR(count);
-				if (idx < size()) RCPY(start + idx + count, start + idx, size() - idx);
+				if (idx < size()) _rcpy(start + idx + count, start + idx, size() - idx);
 				curr += count;
-				NCPY(start + idx, value, count);
+				_ncpy(start + idx, value, count);
 				CLEANUP;
 			}
 			// https://stackoverflow.com/questions/14791984/appending-stdvector-to-itself-undefined-behavior
@@ -182,15 +180,15 @@ namespace ft {
 				size_type	idx = &*pos - start;
 				size_type	count = last - first;
 				ALLOC FOR(count);
-				if (idx < size()) RCPY(start + idx + count, start + idx, size() - idx);
+				if (idx < size()) _rcpy(start + idx + count, start + idx, size() - idx);
 				curr += count;
-				CPY(start + idx, &*first, count);
+				_cpy(start + idx, &*first, count);
 				CLEANUP;
 			}
 			iterator erase(iterator pos)
-			{ CPY(&*pos, &*pos + 1, --curr - &*pos); return (pos); }
+			{ _cpy(&*pos, &*pos + 1, --curr - &*pos); return (pos); }
 			iterator erase(iterator first, iterator last) {
-				CPY(&*first, &*last, curr - &*last);
+				_cpy(&*first, &*last, curr - &*last);
 				curr -= &*last - &*first;
 				return (first);
 			};
@@ -203,7 +201,7 @@ namespace ft {
 			void		resize(size_type count, T value = T()) {
 				if (size() >= count) { curr = start + count; return ; }
 				reserve(count);
-				NCPY(curr, value, count - size());
+				_ncpy(curr, value, count - size());
 				curr = start + count;
 			}
 			void		swap(ft::vector<T,Alloc> &other) {
@@ -238,12 +236,8 @@ namespace ft {
 	{ return (!(lhs < rhs)); }
 
 	template <class T, class Alloc>
-	bool operator>(const ft::vector<T,Alloc> &lhs, const ft::vector<T,Alloc> &rhs) {
-		for (int i = 0, size = MIN(lhs.size(), rhs.size()); i < size; i++)
-			if (lhs[i] != rhs[i])
-				return (lhs[i] > rhs[i]);
-		return (lhs.size() > rhs.size());
-	}
+	bool operator>(const ft::vector<T,Alloc> &lhs, const ft::vector<T,Alloc> &rhs)
+	{ return (rhs < lhs); }
 	template <class T, class Alloc>
 	bool operator<=(const ft::vector<T,Alloc> &lhs, const ft::vector<T,Alloc> &rhs)
 	{ return (!(lhs > rhs)); }

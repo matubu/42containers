@@ -6,7 +6,7 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/31 16:39:27 by mberger-          #+#    #+#             */
-/*   Updated: 2022/02/01 18:10:04 by mberger-         ###   ########.fr       */
+/*   Updated: 2022/02/01 19:17:27 by mberger-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -157,55 +157,39 @@ namespace ft {
 				debug(root, &nil);
 				std::cout << "Insertion successful starting reorganizing" << std::endl;
 
+				#define CASE(side, ar, br) { \
+					Node	*y = z->parent->parent->side; \
+					if (y->red) \
+					{ \
+						std::cout << #side "_1"; \
+						z->parent->red = false; \
+						y->red = false; \
+						z->parent->parent->red = true; \
+						z = z->parent->parent; \
+					} \
+					else \
+					{ \
+						std::cout << #side "_2"; \
+						if (z == z->parent->side) \
+						{ \
+							std::cout << "a"; \
+							z = z->parent; \
+							ar(z); \
+						} \
+						z->parent->red = false; \
+						z->parent->parent->red = true; \
+						br(z->parent->parent); \
+					} \
+					std::cout << std::endl; \
+				}
+
 				//red black stuff
 				Node *z = *ptr;
 				while (z->parent->red)
-				{
 					if (z->parent == z->parent->parent->left)
-					{
-						Node	*y = z->parent->parent->right;
-						if (y->red)
-						{
-							z->parent->red = false;
-							y->red = false;
-							z->parent->parent->red = true;
-							z = z->parent->parent;
-						}
-						else
-						{
-							if (z == z->parent->right)
-							{
-								z = z->parent;
-								leftRotate(z);
-							}
-							z->parent->red = false;
-							z->parent->parent->red = true;
-							rightRotate(z->parent->parent);
-						}
-					}
+						CASE(right, leftRotate, rightRotate)
 					else
-					{
-						Node	*y = z->parent->parent->left;
-						if (y->red)
-						{
-							z->parent->red = false;
-							y->red = false;
-							z->parent->parent->red = true;
-							z = z->parent->parent;
-						}
-						else
-						{
-							if (z == z->parent->left)
-							{
-								z = z->parent;
-								rightRotate(z);
-							}
-							z->parent->red = false;
-							z->parent->parent->red = true;
-							leftRotate(z->parent->parent);
-						}
-					}
-				}
+						CASE(left, rightRotate, leftRotate)
 				root->red = false;
 
 				debug(root, &nil);
@@ -217,7 +201,7 @@ namespace ft {
 				return (node->nil ? NULL : &node->data);
 			}
 			void erase(const Key &key) {
-				debug(root, &nil);
+				//debug(root, &nil);
 				Node	*node = _find(key);
 				if (node->nil) return ;
 				Node	**ptr = GET_PTR_NODE(node);
@@ -234,7 +218,7 @@ namespace ft {
 				else
 					// do some stuff
 					;
-				debug(root, &nil);
+				//debug(root, &nil);
 			}
 	};
 }

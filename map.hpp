@@ -6,11 +6,16 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/31 16:39:27 by mberger-          #+#    #+#             */
-/*   Updated: 2022/02/01 15:48:21 by mberger-         ###   ########.fr       */
+/*   Updated: 2022/02/01 18:10:04 by mberger-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "utils.hpp"
+
+#define GET_PTR_NODE(node) \
+	(node->parent->nil ? &root : (node->parent == node->parent->left ? &node->parent->left : &node->parent->right));
+
+// TODO set previous for nil ?
 
 namespace ft {
 	template <
@@ -66,28 +71,38 @@ namespace ft {
 
 			Node	nil;
 			Node	*root;
-		public:
-			map() : nil(&nil), root(&nil) {}
 
-
-			void debug(Node *node, Node *parent, int level = 0, bool right = true)
+			Node	*_find(const Key &key) {
+				Node	*node = root;
+				while (!node->nil)
+					if (node->key == key)
+						break ;
+					else
+						node = Compare()(key, node->key) ? node->left : node->right;
+				return (node);
+			}
+			void debug(Node *node, Node *parent, std::string buf = "", bool right = true)
 			{
-				if (level)
+				if (!parent->nil)
 				{
-					for (int i = 0; ++i < level;)
-						std::cout << "│  ";
+					std::cout << buf;
 					if (right) std::cout << "├──";
 					else std::cout << "└──";
-					//show error in parent child stuff
+					buf += right ? "│  " : "   ";
 				}
-				if (!node->nil) std::cout << (node->red ? "\033[101;30m" : "\033[40;97m") << node->data << "\033[0m" << (node->parent != parent ? " \033[91m(error)" : "") << "\033[0m" << std::endl;
-				else std::cout << "\033[90mnil\033[0m" << std::endl;
-				if (node->nil) return ;
-				debug(node->right, node, level + 1, true);
-				debug(node->left, node, level + 1, false);
+				if (!node->nil)
+					std::cout << (node->red ? "\033[101;30m" : "\033[40;97m") << node->data << "\033[0m" << (node->parent != parent ? " \033[91m(error)" : "") << "\033[0m" << std::endl;
+				else
+				{
+					std::cout << "\033[90mnil\033[0m" << std::endl;
+					return ;
+				}
+				debug(node->right, node, buf, true);
+				debug(node->left, node, buf, false);
+				if (parent->nil) std::cout << std::endl;
 			}
-
-
+		public:
+			map() : nil(&nil), root(&nil) {}
 
 			// Rotation
 			// https://en.wikipedia.org/wiki/Tree_rotation
@@ -95,7 +110,7 @@ namespace ft {
 			// https://www.programiz.com/dsa/red-black-tree
 			void leftRotate(Node *pivot)
 			{
-				Node	**ptr = pivot->parent->nil ? &root : (pivot->parent == pivot->parent->left ? &pivot->parent->left : &pivot->parent->right);
+				Node	**ptr = GET_PTR_NODE(pivot);
 				Node	*node = pivot->right;
 
 				pivot->right = node->left;
@@ -106,7 +121,7 @@ namespace ft {
 			}
 			void rightRotate(Node *pivot)
 			{
-				Node	**ptr = pivot->parent->nil ? &root : (pivot->parent == pivot->parent->left ? &pivot->parent->left : &pivot->parent->right);
+				Node	**ptr = GET_PTR_NODE(pivot);
 				Node	*node = pivot->left;
 
 				pivot->left = node->right;
@@ -198,14 +213,28 @@ namespace ft {
 				std::cout << "------------------------------------" << std::endl;
 			}
 			mapped_type	*find(const Key &key) {
-				Node	*node = root;
-				while (!node->nil)
-					if (node->key == key)
-						return (&node->data);
-					else
-						node = Compare()(key, node->key) ? node->left : node->right;
-				return (NULL); // end()
+				Node	*node = _find(key);
+				return (node->nil ? NULL : &node->data);
 			}
-			//delete
+			void erase(const Key &key) {
+				debug(root, &nil);
+				Node	*node = _find(key);
+				if (node->nil) return ;
+				Node	**ptr = GET_PTR_NODE(node);
+				if (node->left->nil)
+				{
+					node->right->parent = node->parent;
+					*ptr = node->right;
+				}
+				else if (node->right->nil)
+				{
+					node->left->parent = node->parent;
+					*ptr = node->left;
+				}
+				else
+					// do some stuff
+					;
+				debug(root, &nil);
+			}
 	};
 }

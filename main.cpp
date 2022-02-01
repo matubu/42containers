@@ -125,6 +125,13 @@ void	scope_map(void)
 	get("4");
 	get("5");
 	get("6");
+
+	map.erase("1");
+	map.erase("6");
+	map.erase("3");
+	map.erase("2");
+	map.erase("5");
+	map.erase("4");
 }
 
 void	scope_int(void)

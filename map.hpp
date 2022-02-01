@@ -6,7 +6,7 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/31 16:39:27 by mberger-          #+#    #+#             */
-/*   Updated: 2022/02/01 19:17:27 by mberger-         ###   ########.fr       */
+/*   Updated: 2022/02/01 23:12:52 by matubu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -215,9 +215,8 @@ namespace ft {
 					node->left->parent = node->parent;
 					*ptr = node->left;
 				}
-				else
+				//else
 					// do some stuff
-					;
 				//debug(root, &nil);
 			}
 	};

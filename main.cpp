@@ -1,3 +1,4 @@
+#include <sstream>
 #include <iomanip>
 #include <iostream>
 #include <vector>
@@ -120,8 +121,11 @@ void	scope_map(void)
 
 	for (int i = 5; i++ < 25;)
 	{
-		map.insert(type(std::to_string(i), "_" + std::to_string(i)));
-		get(std::to_string(i));
+		std::stringstream ss;
+		ss << i;
+		std::string str = ss.str();
+		map.insert(type(str, "_" + str));
+		get(str);
 	}
 
 	get("0");

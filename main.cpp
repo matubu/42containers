@@ -98,16 +98,25 @@ void	scope_map(void)
 	typedef ft::pair<std::string, std::string> type;
 	ft::map<std::string, std::string> map;
 
-	#define get(key) std::cout << "get(" key ") -> " << (map.find(key) ? *map.find(key) : "nil") << std::endl;
+	#define get(key) { \
+		std::string *val = map.find(key); \
+		std::cout << "get(" key ") -> " << (val ? *val : "nil") << std::endl; \
+	}
 	
 	get("0");
 
 	map.insert(type("1", "one"));
+	get("1");
 	map.insert(type("2", "two"));
+	get("2");
 	map.insert(type("1", "second one"));
+	get("1");
 	map.insert(type("4", "four"));
+	get("4");
 	map.insert(type("3", "three"));
+	get("3");
 	map.insert(type("5", "five"));
+	get("5");
 
 	get("0");
 	get("1");
@@ -180,8 +189,8 @@ int	main(int argc, char **argv)
 	(void)argc;
 	(void)argv;
 	scope_map();
-	scope_int();
-	scope_string();
+	//scope_int();
+	//scope_string();
 
 	if (success)
 		std::cout << ENDL << "\033[102;30m >>> Success <<< " << ENDL;

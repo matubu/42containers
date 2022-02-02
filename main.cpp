@@ -153,6 +153,9 @@ void	scope_map(void)
 		ss << i;
 		map.erase(ss.str());
 	}
+
+	map.debug();
+
 	for (int i = 200; i-- > 100;)
 	{
 		std::stringstream ss;

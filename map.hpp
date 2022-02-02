@@ -6,16 +6,24 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/31 16:39:27 by mberger-          #+#    #+#             */
-/*   Updated: 2022/02/02 16:53:25 by matubu           ###   ########.fr       */
+/*   Updated: 2022/02/02 22:12:09 by matubu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "utils.hpp"
 
+// https://en.wikipedia.org/wiki/Tree_rotation
+// https://www.geeksforgeeks.org/red-black-tree-set-2-insert/
+// https://www.programiz.com/dsa/red-black-tree
+// https://www.codesdope.com/course/data-structures-red-black-trees/
+// https://dichchankinh.com/~galles/visualization/RedBlack.html
+// https://en.wikipedia.org/wiki/Red%E2%80%93black_tree
+// https://www.programiz.com/dsa/insertion-in-a-red-black-tree
+
 #define GET_PTR_NODE(node) \
 	(node->parent->nil ? &root : (node == node->parent->left ? &node->parent->left : &node->parent->right))
 
-// TODO set previous for nil ?
+// TODO set previous as max for nil ?
 
 namespace ft {
 	template <
@@ -51,12 +59,12 @@ namespace ft {
 				bool	red;
 				bool	nil;
 
-				Node(Node *_nil) :
+				Node() :
 					key(),
 					data(),
-					parent(_nil),
-					left(_nil),
-					right(_nil),
+					parent(this),
+					left(this),
+					right(this),
 					red(false),
 					nil(true) {}
 				Node(const value_type &value, Node *_parent, Node *_nil) :
@@ -69,7 +77,7 @@ namespace ft {
 					nil(false) {}
 			};
 
-			Node	nil;
+			Node	*nil;
 			Node	*root;
 
 			Node	*_find(const Key &key) {
@@ -81,11 +89,7 @@ namespace ft {
 						node = Compare()(key, node->key) ? node->left : node->right;
 				return (node);
 			}
-			// Rotation
-			// https://en.wikipedia.org/wiki/Tree_rotation
-			// https://www.geeksforgeeks.org/red-black-tree-set-2-insert/
-			// https://www.programiz.com/dsa/red-black-tree
-			void leftRotate(Node *pivot)
+			void _leftRotate(Node *pivot)
 			{
 				Node	**ptr = GET_PTR_NODE(pivot);
 				Node	*node = pivot->right;
@@ -97,8 +101,7 @@ namespace ft {
 				pivot->parent = node;
 				*ptr = node;
 			}
-
-			void rightRotate(Node *pivot)
+			void _rightRotate(Node *pivot)
 			{
 				Node	**ptr = GET_PTR_NODE(pivot);
 				Node	*node = pivot->left;
@@ -110,7 +113,6 @@ namespace ft {
 				pivot->parent = node;
 				*ptr = node;
 			}
-
 			void _del(Node *node)
 			{
 				if (node->nil) return ;
@@ -118,51 +120,22 @@ namespace ft {
 				_del(node->right);
 				delete node;
 			}
-		public:
-			map() : nil(&nil), root(&nil) {}
-
-			~map() { _del(root); }
-
-			void debug(Node *node, Node *parent, std::string buf = "", bool right = true)
+			size_type _size(Node *node)
 			{
-				if (!parent->nil)
-				{
-					std::cout << buf;
-					if (right) std::cout << "├──";
-					else std::cout << "└──";
-					buf += right ? "│  " : "   ";
-				}
-				if (!node->nil)
-					std::cout << (node->red ? "\033[101;30m" : "\033[40;97m") << node->data << "\033[0m" << (node->parent != parent ? " \033[91m(error)" : "") << "\033[0m" << std::endl;
-				else
-				{
-					std::cout << "\033[90mnil\033[0m" << std::endl;
-					return ;
-				}
-				debug(node->right, node, buf, true);
-				debug(node->left, node, buf, false);
-				if (parent->nil) std::cout << std::endl << std::flush;
+				if (node->nil) return (0);
+				return (_size(node->left) + _size(node->right) + 1);
 			}
-			void debug() { debug(root, &nil); }
-
-			// Red black tree algo
-			// https://www.geeksforgeeks.org/red-black-tree-set-2-insert/
-			// https://www.programiz.com/dsa/red-black-tree
-			// https://www.codesdope.com/course/data-structures-red-black-trees/
-			// https://dichchankinh.com/~galles/visualization/RedBlack.html
-			// https://en.wikipedia.org/wiki/Red%E2%80%93black_tree
-			// https://www.programiz.com/dsa/insertion-in-a-red-black-tree
-			void	insert(const value_type &value) {
-				Node	*parent = &nil;
+			Node	*_insert(const value_type &value) {
+				Node	*parent = nil;
 				Node	**ptr = &root;
 
 				while (!(*ptr)->nil)
 				{
-					if ((*ptr)->key == value.first) return ;
+					if ((*ptr)->key == value.first) return (*ptr);
 					parent = *ptr;
 					ptr = Compare()(value.first, (*ptr)->key) ? &(*ptr)->left : &(*ptr)->right;
 				}
-				*ptr = new Node(value, parent, &nil);
+				*ptr = new Node(value, parent, nil);
 
 				//red black stuff
 				#define INSERT_FIX(side, ar, br) { \
@@ -190,11 +163,38 @@ namespace ft {
 				Node *z = *ptr;
 				while (z->parent->red)
 					if (z->parent == z->parent->parent->left)
-						INSERT_FIX(right, leftRotate, rightRotate)
+						INSERT_FIX(right, _leftRotate, _rightRotate)
 					else
-						INSERT_FIX(left, rightRotate, leftRotate)
+						INSERT_FIX(left, _rightRotate, _leftRotate)
 				root->red = false;
+
+				return (*ptr);
 			}
+			void _cpy(Node **dst, Node *src)
+			{
+				*dst = new Node();
+			}
+		public:
+			explicit map(const key_compare& comp = key_compare(),
+						const allocator_type& alloc = allocator_type()) : nil(new Node()), root(nil) { (void)comp; (void)alloc; }
+			map(const map &x) : nil(new Node()), root(nil) { _cpy(&root, x.root); };
+
+			~map() { _del(root); delete nil; }
+			void clear() { _del(root); root = nil; }
+			size_type size() const { return _size(root); }
+			bool empty() const { return (root->nil); }
+			T& at(const Key& key) { Node *node = _find(key); if (node->nil) throw std::out_of_range(""); return (node->data); }
+			const T& at(const Key& key) const { Node *node = _find(key); if (node->nil) throw std::out_of_range(""); return (node->data); }
+			T& operator[](const Key& key) { return (_insert(value_type(key, T()))->data); };
+			void swap(map& x) {
+				std::swap(root, x.root);
+				std::swap(nil, x.nil);
+			};
+			size_type count (const key_type& k) const { return (!_find(k)->nil); };
+			void insert(const value_type &value) { _insert(value); }
+
+
+
 			mapped_type	*find(const Key &key) {
 				Node	*node = _find(key);
 				return (node->nil ? NULL : &node->data);
@@ -224,11 +224,10 @@ namespace ft {
 					Node *min = node->right;
 					while (!min->left->nil)
 						min = min->left;
-					originalColor = min->red;
+					/*originalColor = min->red;
 					x = min->right;
-					if(min->parent == node) {
+					if(min->parent == node)
 						x->parent = node;
-					}
 					else {
 						//rb_transplant(t, min, min->right);
 						*GET_PTR_NODE(min) = min->right;
@@ -239,14 +238,15 @@ namespace ft {
 					*ptr = min;
 					min->left = node->left;
 					min->left->parent = min;
+					min->red = node->red;*/
+					originalColor = min->red;
+					min->right->parent = min;
+					x = min->right;
+					node->left->parent = min;
+					min->left = node->left;
 					min->red = node->red;
-					//originalColor = min->red;
-					//x = min->right;
-					//node->left->parent = min;
-					//min->left = node->left;
-					//min->red = node->red;
-					//node->right->parent = node->parent;
-					//*ptr = node->right;
+					node->right->parent = node->parent;
+					*ptr = node->right;
 				}
 				delete node;
 
@@ -254,7 +254,7 @@ namespace ft {
 				(void)originalColor;
 
 				//red black stuff
-				if (originalColor) return ;
+				/*if (originalColor) return ;
 				debug();
 
 				#define DELETE_FIX(side, other, ar, br) { \
@@ -287,10 +287,35 @@ namespace ft {
 
 				while (x != root && !x->red)
 					if (x == x->parent->left)
-						DELETE_FIX(right, left, leftRotate, rightRotate)
+						DELETE_FIX(right, left, _leftRotate, _rightRotate)
 					else
-						DELETE_FIX(left, right, rightRotate, leftRotate)
-				x->red = false;
+						DELETE_FIX(left, right, _rightRotate, _leftRotate)
+				x->red = false;*/
 			}
+
+			void debug(Node *node, Node *parent, std::string buf = "", bool right = true)
+			{
+				if (!parent->nil)
+				{
+					std::cout << buf;
+					if (right) std::cout << "├──";
+					else std::cout << "└──";
+					buf += right ? "│  " : "   ";
+				}
+				if (!node->nil)
+					std::cout << (node->red ? "\033[101;30m" : "\033[40;97m") << node->data << "\033[0m" << (node->parent != parent ? " \033[91m(error)" : "") << "\033[0m" << std::endl;
+				else
+				{
+					std::cout << "\033[90mnil\033[0m" << std::endl;
+					return ;
+				}
+				debug(node->right, node, buf, true);
+				debug(node->left, node, buf, false);
+				if (parent->nil) std::cout << std::endl << std::flush;
+			}
+			void debug() { debug(root, nil); }
 	};
+
+	template <class Key, class T, class Compare, class Alloc>
+	void swap (map<Key, T, Compare, Alloc> &x, map<Key, T, Compare, Alloc> &y) { x.swap(y); }
 }

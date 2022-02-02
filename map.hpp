@@ -6,14 +6,14 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/31 16:39:27 by mberger-          #+#    #+#             */
-/*   Updated: 2022/02/01 23:12:52 by matubu           ###   ########.fr       */
+/*   Updated: 2022/02/02 10:20:29 by matubu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "utils.hpp"
 
 #define GET_PTR_NODE(node) \
-	(node->parent->nil ? &root : (node->parent == node->parent->left ? &node->parent->left : &node->parent->right));
+	(node->parent->nil ? &root : (node == node->parent->left ? &node->parent->left : &node->parent->right));
 
 // TODO set previous for nil ?
 
@@ -101,35 +101,53 @@ namespace ft {
 				debug(node->left, node, buf, false);
 				if (parent->nil) std::cout << std::endl;
 			}
-		public:
-			map() : nil(&nil), root(&nil) {}
-
 			// Rotation
 			// https://en.wikipedia.org/wiki/Tree_rotation
 			// https://www.geeksforgeeks.org/red-black-tree-set-2-insert/
 			// https://www.programiz.com/dsa/red-black-tree
 			void leftRotate(Node *pivot)
 			{
+				std::cout << "lr(" << pivot->data << ")" << std::endl;
+				debug(root, &nil);
 				Node	**ptr = GET_PTR_NODE(pivot);
 				Node	*node = pivot->right;
 
 				pivot->right = node->left;
+				pivot->right->parent = pivot;
 				node->left = pivot;
 				node->parent = pivot->parent;
 				pivot->parent = node;
 				*ptr = node;
+				debug(root, &nil);
 			}
+
 			void rightRotate(Node *pivot)
 			{
+				std::cout << "rr(" << pivot->data << ")" << std::endl;
+				debug(root, &nil);
 				Node	**ptr = GET_PTR_NODE(pivot);
 				Node	*node = pivot->left;
 
 				pivot->left = node->right;
+				pivot->left->parent = pivot;
 				node->right = pivot;
 				node->parent = pivot->parent;
 				pivot->parent = node;
 				*ptr = node;
+				debug(root, &nil);
 			}
+
+			void _del(Node *node)
+			{
+				if (node->nil) return ;
+				_del(node->left);
+				_del(node->right);
+				delete node;
+			}
+		public:
+			map() : nil(&nil), root(&nil) {}
+
+			~map() { _del(root); }
 
 			// Red black tree algo
 			// https://www.geeksforgeeks.org/red-black-tree-set-2-insert/

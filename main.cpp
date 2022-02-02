@@ -99,49 +99,68 @@ void	scope_map(void)
 	typedef ft::pair<std::string, std::string> type;
 	ft::map<std::string, std::string> map;
 
-	#define get(key)/* { \
+	#define get(key) { \
 		std::string *val = map.find(key); \
-		std::cout << "get(" << key << ") -> " << (val ? *val : "nil") << std::endl; \
-	}*/
+		if (val == NULL) std::cout << std::endl << "cannot retrieve " << key << std::endl; \
+		else std::cout << "✅" << std::flush; \
+	}
 	
-	get("0");
-
 	map.insert(type("1", "one"));
-	get("1");
 	map.insert(type("2", "two"));
-	get("2");
 	map.insert(type("1", "second one"));
-	get("1");
 	map.insert(type("4", "four"));
-	get("4");
 	map.insert(type("3", "three"));
-	get("3");
 	map.insert(type("5", "five"));
-	get("5");
 
-	for (int i = 5; i++ < 25;)
+	for (int i = 5; i++ < 100;)
 	{
 		std::stringstream ss;
 		ss << i;
-		std::string str = ss.str();
-		map.insert(type(str, "_" + str));
-		get(str);
+		map.insert(type(ss.str(), "+" + ss.str()));
+	}
+	for (int i = 200; i-- > 100;)
+	{
+		std::stringstream ss;
+		ss << i;
+		map.insert(type(ss.str(), "+" + ss.str()));
 	}
 
-	get("0");
-	get("1");
-	get("2");
-	get("3");
-	get("4");
-	get("5");
-	get("6");
+	map.debug();
 
-	/*map.erase("1");
+	map.erase("0");
+	map.erase("6");
+	map.erase("0");
+	map.erase("1");
+	map.erase("1");
 	map.erase("6");
 	map.erase("3");
 	map.erase("2");
 	map.erase("5");
-	map.erase("4");*/
+	map.erase("4");
+
+	map.debug();
+
+	for (int i = 0; i++ < 200;)
+	{
+		std::stringstream ss;
+		ss << i;
+		get(ss.str());
+	}
+
+	for (int i = 5; i++ < 100;)
+	{
+		std::stringstream ss;
+		ss << i;
+		map.erase(ss.str());
+	}
+	for (int i = 200; i-- > 100;)
+	{
+		std::stringstream ss;
+		ss << i;
+		map.erase(ss.str());
+	}
+
+	map.debug();
 }
 
 void	scope_int(void)

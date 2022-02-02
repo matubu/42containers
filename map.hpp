@@ -6,14 +6,14 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/31 16:39:27 by mberger-          #+#    #+#             */
-/*   Updated: 2022/02/02 10:20:29 by matubu           ###   ########.fr       */
+/*   Updated: 2022/02/02 16:53:25 by matubu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "utils.hpp"
 
 #define GET_PTR_NODE(node) \
-	(node->parent->nil ? &root : (node == node->parent->left ? &node->parent->left : &node->parent->right));
+	(node->parent->nil ? &root : (node == node->parent->left ? &node->parent->left : &node->parent->right))
 
 // TODO set previous for nil ?
 
@@ -81,6 +81,48 @@ namespace ft {
 						node = Compare()(key, node->key) ? node->left : node->right;
 				return (node);
 			}
+			// Rotation
+			// https://en.wikipedia.org/wiki/Tree_rotation
+			// https://www.geeksforgeeks.org/red-black-tree-set-2-insert/
+			// https://www.programiz.com/dsa/red-black-tree
+			void leftRotate(Node *pivot)
+			{
+				Node	**ptr = GET_PTR_NODE(pivot);
+				Node	*node = pivot->right;
+
+				pivot->right = node->left;
+				pivot->right->parent = pivot;
+				node->left = pivot;
+				node->parent = pivot->parent;
+				pivot->parent = node;
+				*ptr = node;
+			}
+
+			void rightRotate(Node *pivot)
+			{
+				Node	**ptr = GET_PTR_NODE(pivot);
+				Node	*node = pivot->left;
+
+				pivot->left = node->right;
+				pivot->left->parent = pivot;
+				node->right = pivot;
+				node->parent = pivot->parent;
+				pivot->parent = node;
+				*ptr = node;
+			}
+
+			void _del(Node *node)
+			{
+				if (node->nil) return ;
+				_del(node->left);
+				_del(node->right);
+				delete node;
+			}
+		public:
+			map() : nil(&nil), root(&nil) {}
+
+			~map() { _del(root); }
+
 			void debug(Node *node, Node *parent, std::string buf = "", bool right = true)
 			{
 				if (!parent->nil)
@@ -99,55 +141,9 @@ namespace ft {
 				}
 				debug(node->right, node, buf, true);
 				debug(node->left, node, buf, false);
-				if (parent->nil) std::cout << std::endl;
+				if (parent->nil) std::cout << std::endl << std::flush;
 			}
-			// Rotation
-			// https://en.wikipedia.org/wiki/Tree_rotation
-			// https://www.geeksforgeeks.org/red-black-tree-set-2-insert/
-			// https://www.programiz.com/dsa/red-black-tree
-			void leftRotate(Node *pivot)
-			{
-				std::cout << "lr(" << pivot->data << ")" << std::endl;
-				debug(root, &nil);
-				Node	**ptr = GET_PTR_NODE(pivot);
-				Node	*node = pivot->right;
-
-				pivot->right = node->left;
-				pivot->right->parent = pivot;
-				node->left = pivot;
-				node->parent = pivot->parent;
-				pivot->parent = node;
-				*ptr = node;
-				debug(root, &nil);
-			}
-
-			void rightRotate(Node *pivot)
-			{
-				std::cout << "rr(" << pivot->data << ")" << std::endl;
-				debug(root, &nil);
-				Node	**ptr = GET_PTR_NODE(pivot);
-				Node	*node = pivot->left;
-
-				pivot->left = node->right;
-				pivot->left->parent = pivot;
-				node->right = pivot;
-				node->parent = pivot->parent;
-				pivot->parent = node;
-				*ptr = node;
-				debug(root, &nil);
-			}
-
-			void _del(Node *node)
-			{
-				if (node->nil) return ;
-				_del(node->left);
-				_del(node->right);
-				delete node;
-			}
-		public:
-			map() : nil(&nil), root(&nil) {}
-
-			~map() { _del(root); }
+			void debug() { debug(root, &nil); }
 
 			// Red black tree algo
 			// https://www.geeksforgeeks.org/red-black-tree-set-2-insert/
@@ -157,10 +153,6 @@ namespace ft {
 			// https://en.wikipedia.org/wiki/Red%E2%80%93black_tree
 			// https://www.programiz.com/dsa/insertion-in-a-red-black-tree
 			void	insert(const value_type &value) {
-				std::cout << std::endl << std::endl << std::endl << "------------------------------------" << std::endl;
-				debug(root, &nil);
-				std::cout << "Starting insertion " << value.second << std::endl;
-
 				Node	*parent = &nil;
 				Node	**ptr = &root;
 
@@ -172,14 +164,11 @@ namespace ft {
 				}
 				*ptr = new Node(value, parent, &nil);
 
-				debug(root, &nil);
-				std::cout << "Insertion successful starting reorganizing" << std::endl;
-
-				#define CASE(side, ar, br) { \
+				//red black stuff
+				#define INSERT_FIX(side, ar, br) { \
 					Node	*y = z->parent->parent->side; \
 					if (y->red) \
 					{ \
-						std::cout << #side "_1"; \
 						z->parent->red = false; \
 						y->red = false; \
 						z->parent->parent->red = true; \
@@ -187,10 +176,8 @@ namespace ft {
 					} \
 					else \
 					{ \
-						std::cout << #side "_2"; \
 						if (z == z->parent->side) \
 						{ \
-							std::cout << "a"; \
 							z = z->parent; \
 							ar(z); \
 						} \
@@ -198,44 +185,112 @@ namespace ft {
 						z->parent->parent->red = true; \
 						br(z->parent->parent); \
 					} \
-					std::cout << std::endl; \
 				}
 
-				//red black stuff
 				Node *z = *ptr;
 				while (z->parent->red)
 					if (z->parent == z->parent->parent->left)
-						CASE(right, leftRotate, rightRotate)
+						INSERT_FIX(right, leftRotate, rightRotate)
 					else
-						CASE(left, rightRotate, leftRotate)
+						INSERT_FIX(left, rightRotate, leftRotate)
 				root->red = false;
-
-				debug(root, &nil);
-				std::cout << "Reorganisation successful" << std::endl;
-				std::cout << "------------------------------------" << std::endl;
 			}
 			mapped_type	*find(const Key &key) {
 				Node	*node = _find(key);
 				return (node->nil ? NULL : &node->data);
 			}
 			void erase(const Key &key) {
-				//debug(root, &nil);
 				Node	*node = _find(key);
+				std::cout << (node->nil ? "not found " : "deleted ") << key << std::endl;
 				if (node->nil) return ;
+				Node	*x;
 				Node	**ptr = GET_PTR_NODE(node);
+				bool	originalColor = node->red;
+
 				if (node->left->nil)
 				{
+					x = node->right;
 					node->right->parent = node->parent;
 					*ptr = node->right;
 				}
 				else if (node->right->nil)
 				{
+					x = node->left;
 					node->left->parent = node->parent;
 					*ptr = node->left;
 				}
-				//else
-					// do some stuff
-				//debug(root, &nil);
+				else
+				{
+					Node *min = node->right;
+					while (!min->left->nil)
+						min = min->left;
+					originalColor = min->red;
+					x = min->right;
+					if(min->parent == node) {
+						x->parent = node;
+					}
+					else {
+						//rb_transplant(t, min, min->right);
+						*GET_PTR_NODE(min) = min->right;
+						min->right = node->right;
+						min->right->parent = min;
+					}
+					//rb_transplant(t, node, min);
+					*ptr = min;
+					min->left = node->left;
+					min->left->parent = min;
+					min->red = node->red;
+					//originalColor = min->red;
+					//x = min->right;
+					//node->left->parent = min;
+					//min->left = node->left;
+					//min->red = node->red;
+					//node->right->parent = node->parent;
+					//*ptr = node->right;
+				}
+				delete node;
+
+				(void)x;
+				(void)originalColor;
+
+				//red black stuff
+				if (originalColor) return ;
+				debug();
+
+				#define DELETE_FIX(side, other, ar, br) { \
+					Node *w = x->parent->side; \
+					if (w->red) { \
+						w->red = false; \
+						x->parent->red = true; \
+						ar(x->parent); \
+						w = x->parent->side; \
+					} \
+					if (!w->left->red && !w->right->red) { \
+						w->red = true; \
+						x = x->parent; \
+					} \
+					else \
+					{ \
+						if(!w->side->red) { \
+							w->other->red = false; \
+							w->red = true; \
+							br(w); \
+							w = x->parent->side; \
+						} \
+						w->red = x->parent->red; \
+						x->parent->red = false; \
+						w->side->red = false; \
+						ar(x->parent); \
+						x = root; \
+					} \
+				}
+
+				while (x != root && !x->red)
+					if (x == x->parent->left)
+						DELETE_FIX(right, left, leftRotate, rightRotate)
+					else
+						DELETE_FIX(left, right, rightRotate, leftRotate)
+				x->red = false;
 			}
 	};
 }

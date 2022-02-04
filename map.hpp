@@ -6,7 +6,7 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/31 16:39:27 by mberger-          #+#    #+#             */
-/*   Updated: 2022/02/02 22:12:09 by matubu           ###   ########.fr       */
+/*   Updated: 2022/02/04 13:49:11 by mberger-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 	(node->parent->nil ? &root : (node == node->parent->left ? &node->parent->left : &node->parent->right))
 
 // TODO set previous as max for nil ?
+// TODO add red black stuff for erase
 
 namespace ft {
 	template <
@@ -60,21 +61,17 @@ namespace ft {
 				bool	nil;
 
 				Node() :
-					key(),
-					data(),
-					parent(this),
-					left(this),
-					right(this),
-					red(false),
-					nil(true) {}
+					key(), data(),
+					parent(this), left(this), right(this),
+					red(false), nil(true) {}
 				Node(const value_type &value, Node *_parent, Node *_nil) :
-					key(value.first),
-					data(value.second),
-					parent(_parent),
-					left(_nil),
-					right(_nil),
-					red(true),
-					nil(false) {}
+					key(value.first), data(value.second),
+					parent(_parent), left(_nil), right(_nil),
+					red(true), nil(false) {}
+				Node(const Node &other, Node *_nil) :
+					key(other.key), data(other.data),
+					parent(_nil), left(_nil), right(_nil),
+					red(other.red), nil(false) {}
 			};
 
 			Node	*nil;
@@ -170,14 +167,20 @@ namespace ft {
 
 				return (*ptr);
 			}
-			void _cpy(Node **dst, Node *src)
+			Node *_cpy(Node *src)
 			{
-				*dst = new Node();
+				if (src->nil) return (nil);
+				Node *node = new Node(src, nil);
+				node->right = _cpy(node->right);
+				node->right->parent = node;
+				node->left = _cpy(node->left);
+				node->left->parent = node;
+				return (node);
 			}
 		public:
 			explicit map(const key_compare& comp = key_compare(),
 						const allocator_type& alloc = allocator_type()) : nil(new Node()), root(nil) { (void)comp; (void)alloc; }
-			map(const map &x) : nil(new Node()), root(nil) { _cpy(&root, x.root); };
+			map(const map &x) : nil(new Node()), root(_cpy(x->root)) {};
 
 			~map() { _del(root); delete nil; }
 			void clear() { _del(root); root = nil; }
@@ -203,19 +206,19 @@ namespace ft {
 				Node	*node = _find(key);
 				std::cout << (node->nil ? "not found " : "deleted ") << key << std::endl;
 				if (node->nil) return ;
-				Node	*x;
+				//Node	*x;
 				Node	**ptr = GET_PTR_NODE(node);
-				bool	originalColor = node->red;
+				//bool	originalColor = node->red;
 
 				if (node->left->nil)
 				{
-					x = node->right;
+					//x = node->right;
 					node->right->parent = node->parent;
 					*ptr = node->right;
 				}
 				else if (node->right->nil)
 				{
-					x = node->left;
+					//x = node->left;
 					node->left->parent = node->parent;
 					*ptr = node->left;
 				}
@@ -239,9 +242,9 @@ namespace ft {
 					min->left = node->left;
 					min->left->parent = min;
 					min->red = node->red;*/
-					originalColor = min->red;
+					//originalColor = min->red;
 					min->right->parent = min;
-					x = min->right;
+					//x = min->right;
 					node->left->parent = min;
 					min->left = node->left;
 					min->red = node->red;
@@ -250,11 +253,11 @@ namespace ft {
 				}
 				delete node;
 
-				(void)x;
+				/*(void)x;
 				(void)originalColor;
 
 				//red black stuff
-				/*if (originalColor) return ;
+				if (originalColor) return ;
 				debug();
 
 				#define DELETE_FIX(side, other, ar, br) { \

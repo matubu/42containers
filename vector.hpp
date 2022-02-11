@@ -6,7 +6,7 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/07 18:36:15 by mberger-          #+#    #+#             */
-/*   Updated: 2022/02/01 14:50:18 by mberger-         ###   ########.fr       */
+/*   Updated: 2022/02/10 12:56:33 by matubu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ namespace ft {
 			typedef typename Alloc::pointer                       pointer;
 			typedef typename Alloc::const_pointer                 const_pointer;
 			typedef typename ft::random_access_iterator<T>        iterator;
-			typedef typename ft::random_access_iterator<T>        const_iterator;
+			typedef const typename ft::random_access_iterator<T>  const_iterator;
 			typedef typename ft::reverse_iterator<iterator>       reverse_iterator;
 			typedef typename ft::reverse_iterator<const_iterator> const_reverse_iterator;
 			typedef typename std::ptrdiff_t                       difference_type;

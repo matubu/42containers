@@ -6,7 +6,7 @@
 /*   By: matubu <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/10 17:34:45 by matubu            #+#    #+#             */
-/*   Updated: 2022/01/31 16:50:33 by mberger-         ###   ########.fr       */
+/*   Updated: 2022/02/10 13:03:50 by matubu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,28 +42,17 @@ namespace ft {
 			void push(const value_type &x)      { c.push_back(x); }
 			void pop()                          { c.pop_back(); }
 
-			template <class _T, class _Container>
-			friend bool operator==(const ft::stack<_T,_Container> &lhs, const ft::stack<_T,_Container> &rhs)
+			friend bool operator==(const stack &lhs, const stack &rhs)
 			{ return lhs.c == rhs.c; }
-
-			template <class _T, class _Container>
-			friend bool operator!=(const ft::stack<_T,_Container> &lhs, const ft::stack<_T,_Container> &rhs)
+			friend bool operator!=(const stack &lhs, const stack &rhs)
 			{ return lhs.c != rhs.c; }
-
-			template <class _T, class _Container>
-			friend bool operator<(const ft::stack<_T,_Container> &lhs, const ft::stack<_T,_Container> &rhs)
+			friend bool operator<(const stack &lhs, const stack &rhs)
 			{ return lhs.c < rhs.c; }
-
-			template <class _T, class _Container>
-			friend bool operator<=(const ft::stack<_T,_Container> &lhs, const ft::stack<_T,_Container> &rhs)
+			friend bool operator<=(const stack &lhs, const stack &rhs)
 			{ return lhs.c <= rhs.c; }
-
-			template <class _T, class _Container>
-			friend bool operator>(const ft::stack<_T,_Container> &lhs, const ft::stack<_T,_Container> &rhs)
+			friend bool operator>(const stack &lhs, const stack &rhs)
 			{ return lhs.c > rhs.c; }
-
-			template <class _T, class _Container>
-			friend bool operator>=(const ft::stack<_T,_Container> &lhs, const ft::stack<_T,_Container> &rhs)
+			friend bool operator>=(const stack &lhs, const stack &rhs)
 			{ return lhs.c >= rhs.c; }
 	};
 }

@@ -27,8 +27,6 @@ test: re run
 define test
 	$(MAKE) -C ft_containers_testers/testor1 $(1) || echo "Error for testor 1"
 	cd ft_containers_testers/testor2 && ./test.sh $(1) || echo "Error for testor 2"
-	cd ft_containers_testers/testor3 && ./do.sh $(1) || echo "Error for testor 3"
-	cd ft_containers-unit-test && ./start.sh $(1) || echo "Error for unit testor"
 endef
 
 vector:
@@ -37,7 +35,9 @@ stack:
 	$(call test,stack)
 map:
 	$(call test,map)
+set:
+	$(call test,set)
 
-fulltest: test vector stack map
+fulltest: test vector stack map set
 
-.PHONY: all run re clean fclean test fulltest vector stack map
+.PHONY: all run re clean fclean test vector stack map set fulltest

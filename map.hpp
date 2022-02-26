@@ -6,7 +6,7 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/31 16:39:27 by mberger-          #+#    #+#             */
-/*   Updated: 2022/02/26 21:43:04 by matubu           ###   ########.fr       */
+/*   Updated: 2022/02/26 21:59:08 by matubu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,10 @@ namespace ft {
 			typedef const T &                              const_reference;
 			typedef typename Allocator::pointer            pointer;
 			typedef typename Allocator::const_pointer      const_pointer;
+			typedef ft::bidirectional_iterator<Node>       iterator;
+			typedef ft::bidirectional_iterator<const Node> const_iterator;
+			typedef ft::reverse_iterator<iterator>         reverse_iterator;
+			typedef ft::reverse_iterator<const_iterator>   const_reverse_iterator;
 
 		private:
 			struct Node {
@@ -204,14 +208,38 @@ namespace ft {
 			T& at(const Key& key) { Node *node = _find(key); if (node->nil) throw std::out_of_range(""); return (node->data); }
 			const T& at(const Key& key) const { Node *node = _find(key); if (node->nil) throw std::out_of_range(""); return (node->data); }
 
-			//iterator begin();
-			//const_iterator begin() const;
-			//iterator end();
-			//const_iterator end() const;
-			//reverse_iterator rbegin();
-			//const_reverse_iterator rbegin() const;
-			//reverse_iterator rend();
-			//const_reverse_iterator rend() const;
+			iterator begin()
+			{
+				Node	*node = root;
+				while (!node->left->nil)
+					node = node->left;
+				return (iterator(node));
+			}
+			const_iterator begin()
+			{
+				Node	*node = root;
+				while (!node->left->nil)
+					node = node->left;
+				return (const_iterator(node));
+			}
+			iterator end()
+			{
+				Node	*node = root;
+				while (!node->right->nil)
+					node = node->right;
+				return (iterator(node));
+			}
+			const_iterator end() const
+			{
+				Node	*node = root;
+				while (!node->right->nil)
+					node = node->right;
+				return (const_iterator(node));
+			}
+			reverse_iterator rbegin() { return (reverse_iterator(end())); }
+			const_reverse_iterator rbegin() const { return (const_reverse_iterator(end())); }
+			reverse_iterator rend() { return (reverse_iterator(begin())); }
+			const_reverse_iterator rend() const { return (const_reverse_iterator(begin())); }
 
 			bool empty() const { return (root->nil); }
 			size_type size() const { return _size(root); }

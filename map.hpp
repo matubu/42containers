@@ -6,7 +6,7 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/31 16:39:27 by mberger-          #+#    #+#             */
-/*   Updated: 2022/02/10 12:55:53 by matubu           ###   ########.fr       */
+/*   Updated: 2022/02/26 21:43:04 by matubu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,8 +72,8 @@ namespace ft {
 					red(other.red), nil(false) {}
 			};
 
-			Node	*nil;
-			Node	*root;
+			Node		*nil;
+			Node		*root;
 
 			Node	*_find(const Key &key) {
 				Node	*node = root;
@@ -182,45 +182,62 @@ namespace ft {
 			typedef typename ft::reverse_iterator<iterator>         reverse_iterator;
 			typedef typename ft::reverse_iterator<const_iterator>   const_reverse_iterator;
 
-			explicit map(const key_compare& comp = key_compare(),
-						const allocator_type& alloc = allocator_type()) : nil(new Node()), root(nil) { (void)comp; (void)alloc; }
+			explicit map(const key_compare &comp = key_compare(),
+						const allocator_type &alloc = allocator_type()) : nil(new Node()), root(nil) { (void)comp; (void)alloc; }
+			template <class InputIterator>
+			map(InputIterator first, InputIterator last,
+				const key_compare& comp = key_compare(),
+				const allocator_type& alloc = allocator_type()) {
+				(void)comp;
+				(void)alloc;
+				while (first != last)
+				{
+					insert(*first);
+					++first;
+				}
+			}
 			map(const map &x) : nil(new Node()), root(_cpy(x->root)) {};
 
 			~map() { _del(root); delete nil; }
-			void clear() { _del(root); root = nil; }
-			size_type size() const { return _size(root); }
-			bool empty() const { return (root->nil); }
+
+			T &operator[](const Key &key) { return (_insert(value_type(key, T()))->data); };
 			T& at(const Key& key) { Node *node = _find(key); if (node->nil) throw std::out_of_range(""); return (node->data); }
 			const T& at(const Key& key) const { Node *node = _find(key); if (node->nil) throw std::out_of_range(""); return (node->data); }
-			T& operator[](const Key& key) { return (_insert(value_type(key, T()))->data); };
-			void swap(map& x) {
-				std::swap(root, x.root);
-				std::swap(nil, x.nil);
-			};
-			size_type count (const key_type& k) const { return (!_find(k)->nil); };
-			void insert(const value_type &value) { _insert(value); }
 
-			mapped_type	*find(const Key &key) {
-				Node	*node = _find(key);
-				return (node->nil ? NULL : &node->data);
-			}
+			//iterator begin();
+			//const_iterator begin() const;
+			//iterator end();
+			//const_iterator end() const;
+			//reverse_iterator rbegin();
+			//const_reverse_iterator rbegin() const;
+			//reverse_iterator rend();
+			//const_reverse_iterator rend() const;
+
+			bool empty() const { return (root->nil); }
+			size_type size() const { return _size(root); }
+			size_type max_size() const { return (0); }
+
+			void clear() { _del(root); root = nil; }
+			//ft::pair<iterator, bool> insert(const value_type &value);
+			//iterator insert(iterator hint, const value_type &value);
+			//template<class InputIt>
+			//void insert(InputIt first, InputIt last);
+			void insert(const value_type &value) { _insert(value); }
+			//void erase(iterator pos);
+			//void erase(iterator first, iterator last);
+			//size_type erase(const Key &key);
 			void erase(const Key &key) {
 				Node	*node = _find(key);
-				std::cout << (node->nil ? "not found " : "deleted ") << key << std::endl;
 				if (node->nil) return ;
-				//Node	*x;
 				Node	**ptr = GET_PTR_NODE(node);
-				//bool	originalColor = node->red;
 
 				if (node->left->nil)
 				{
-					//x = node->right;
 					node->right->parent = node->parent;
 					*ptr = node->right;
 				}
 				else if (node->right->nil)
 				{
-					//x = node->left;
 					node->left->parent = node->parent;
 					*ptr = node->left;
 				}
@@ -229,24 +246,7 @@ namespace ft {
 					Node *min = node->right;
 					while (!min->left->nil)
 						min = min->left;
-					/*originalColor = min->red;
-					x = min->right;
-					if(min->parent == node)
-						x->parent = node;
-					else {
-						//rb_transplant(t, min, min->right);
-						*GET_PTR_NODE(min) = min->right;
-						min->right = node->right;
-						min->right->parent = min;
-					}
-					//rb_transplant(t, node, min);
-					*ptr = min;
-					min->left = node->left;
-					min->left->parent = min;
-					min->red = node->red;*/
-					//originalColor = min->red;
 					min->right->parent = min;
-					//x = min->right;
 					node->left->parent = min;
 					min->left = node->left;
 					min->red = node->red;
@@ -254,49 +254,28 @@ namespace ft {
 					*ptr = node->right;
 				}
 				delete node;
-
-				/*(void)x;
-				(void)originalColor;
-
-				//red black stuff
-				if (originalColor) return ;
-				debug();
-
-				#define DELETE_FIX(side, other, ar, br) { \
-					Node *w = x->parent->side; \
-					if (w->red) { \
-						w->red = false; \
-						x->parent->red = true; \
-						ar(x->parent); \
-						w = x->parent->side; \
-					} \
-					if (!w->left->red && !w->right->red) { \
-						w->red = true; \
-						x = x->parent; \
-					} \
-					else \
-					{ \
-						if(!w->side->red) { \
-							w->other->red = false; \
-							w->red = true; \
-							br(w); \
-							w = x->parent->side; \
-						} \
-						w->red = x->parent->red; \
-						x->parent->red = false; \
-						w->side->red = false; \
-						ar(x->parent); \
-						x = root; \
-					} \
-				}
-
-				while (x != root && !x->red)
-					if (x == x->parent->left)
-						DELETE_FIX(right, left, _leftRotate, _rightRotate)
-					else
-						DELETE_FIX(left, right, _rightRotate, _leftRotate)
-				x->red = false;*/
 			}
+			void swap(map& x) {
+				std::swap(root, x.root);
+				std::swap(nil, x.nil);
+			};
+
+			size_type count(const Key &k) const { return (!_find(k)->nil); };
+			//iterator find( const Key& key );
+			//const_iterator find( const Key& key ) const;
+			mapped_type	*find(const Key &key) {
+				Node	*node = _find(key);
+				return (node->nil ? NULL : &node->data);
+			}
+			//std::pair<iterator,iterator> equal_range(const Key &key);
+			//std::pair<const_iterator,const_iterator> equal_range(const Key &key) const;
+			//iterator lower_bound(const Key &key);
+			//const_iterator lower_bound(const Key &key) const;
+			//iterator upper_bound(const Key &key);
+			//const_iterator upper_bound(const Key &key) const;
+
+			//key_compare key_comp() const;
+			//value_compare value_comp() const;
 
 			void debug(Node *node, Node *parent, std::string buf = "", bool right = true)
 			{
@@ -319,8 +298,15 @@ namespace ft {
 				if (parent->nil) std::cout << std::endl << std::flush;
 			}
 			void debug() { debug(root, nil); }
+
+			//friend bool operator==(const map &lhs, const map &rhs);
+			//friend bool operator!=(const map &lhs, const map &rhs);
+			//friend bool operator<(const map &lhs, const map &rhs);
+			//friend bool operator<=(const map &lhs, const map &rhs);
+			//friend bool operator>(const map &lhs, const map &rhs);
+			//friend bool operator>=(const map &lhs, const map &rhs);
 	};
 
 	template <class Key, class T, class Compare, class Alloc>
-	void swap (map<Key, T, Compare, Alloc> &x, map<Key, T, Compare, Alloc> &y) { x.swap(y); }
+	void swap(map<Key, T, Compare, Alloc> &x, map<Key, T, Compare, Alloc> &y) { x.swap(y); }
 }

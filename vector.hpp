@@ -6,7 +6,7 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/07 18:36:15 by mberger-          #+#    #+#             */
-/*   Updated: 2022/02/10 12:56:33 by matubu           ###   ########.fr       */
+/*   Updated: 2022/02/26 16:53:33 by matubu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ namespace ft {
 	#define CLEANUP if (old) allocator.deallocate(old, cap);
 	#define FOR(count) \
 		if (size() + count > capacity()) \
-		old = _realloc(size() + count <= capacity() << 1 ? capacity() << 1 : size() + count);
+			old = _realloc(size() + count <= capacity() << 1 ? capacity() << 1 : size() + count);
 	#define SET(ptr, val) allocator.construct(ptr, val);
 	#define MIN(a, b) (a < b) ? a : b
 	#define INIT(alloc) allocator(alloc), start(NULL), curr(NULL), last(NULL)
@@ -40,7 +40,7 @@ namespace ft {
 			typedef typename Alloc::pointer                       pointer;
 			typedef typename Alloc::const_pointer                 const_pointer;
 			typedef typename ft::random_access_iterator<T>        iterator;
-			typedef const typename ft::random_access_iterator<T>  const_iterator;
+			typedef typename ft::random_access_iterator<const T>  const_iterator;
 			typedef typename ft::reverse_iterator<iterator>       reverse_iterator;
 			typedef typename ft::reverse_iterator<const_iterator> const_reverse_iterator;
 			typedef typename std::ptrdiff_t                       difference_type;
@@ -53,7 +53,6 @@ namespace ft {
 			pointer	last;
 
 			pointer		_realloc(size_type new_cap) {
-				if (new_cap <= capacity()) return (NULL);
 				if (new_cap > max_size())
 					throw std::length_error("'n' exceeds maximum supported size");
 				size_type	n = size();
@@ -73,17 +72,18 @@ namespace ft {
 			explicit vector(size_type count, const T &value = T(), const Alloc &alloc = Alloc())
 					: INIT(alloc) {
 				reserve(count);
-				_ncpy(curr, value, count);
+				_ncpy(start, value, count);
 				curr += count;
 			}
 			template <class Iter>
 			vector(Iter first, Iter last, const Alloc &alloc = Alloc(),
 					typename ft::enable_if<!ft::is_integral<Iter>::value>::type * = ft_nullptr_t())
 					: INIT(alloc) {
-				difference_type count = last - first;
-				reserve(count);
-				_cpy(curr, first, count);
-				curr = start + count;
+				while (first != last)
+				{
+					push_back(*first);
+					++first;
+				}
 			}
 			vector(const vector &other) : INIT(other.allocator) {
 				size_type n = other.size();
@@ -113,11 +113,12 @@ namespace ft {
 			template <class Iter>
 			void assign(Iter first, Iter last,
 					typename ft::enable_if<!ft::is_integral<Iter>::value>::type * = ft_nullptr_t()) {
-				curr = start;
-				size_type n = last - first;
-				reserve(n);
-				_cpy(start, &*first, n);
-				curr = start + n;
+				clear();
+				while (first != last)
+				{
+					push_back(*first);
+					++first;
+				}
 			}
 			allocator_type	get_allocator() const { return (allocator); };
 
@@ -135,9 +136,9 @@ namespace ft {
 
 			// Iterators
 			iterator				begin() { return (iterator(start)); }
-			const_iterator			begin() const { return (iterator(start)); }
+			const_iterator			begin() const { return (const_iterator(start)); }
 			iterator				end() { return (iterator(curr)); }
-			const_iterator			end() const { return (iterator(curr)); }
+			const_iterator			end() const { return (const_iterator(curr)); }
 			reverse_iterator		rbegin() { return (reverse_iterator(curr)); }
 			const_reverse_iterator	rbegin() const { return (const_reverse_iterator(curr)); }
 			reverse_iterator		rend() { return (reverse_iterator(start)); }
@@ -148,6 +149,7 @@ namespace ft {
 			size_type	size() const { return (curr - start); }
 			size_type	max_size() const { return (allocator.max_size()); }
 			void		reserve(size_type new_cap) {
+				if (new_cap <= capacity()) return ;
 				ALLOC;
 				old = _realloc(new_cap);
 				CLEANUP;
@@ -156,16 +158,21 @@ namespace ft {
 
 			// Modifiers
 			void		clear() { curr = start; }
-			iterator	insert(iterator pos, const T& value) {
+			iterator	insert(iterator pos, const T &value) {
 				size_type	idx = &*pos - start;
 				ALLOC FOR(1);
-				if (idx < size()) _rcpy(start + idx + 1, start + idx, size() - idx);
+				if (idx < size())
+				{
+					_rcpy(start + idx + 1, start + idx, size() - idx);
+					SET(start + idx, value);
+				}
+				else
+					SET(start + size(), value);
 				curr++;
-				start[idx] = value;
 				CLEANUP;
 				return (iterator(start + idx));
 			}
-			void insert(iterator pos, size_type count, const T& value) {
+			void insert(iterator pos, size_type count, const T &value) {
 				size_type	idx = &*pos - start;
 				ALLOC FOR(count);
 				if (idx < size()) _rcpy(start + idx + count, start + idx, size() - idx);
@@ -173,16 +180,17 @@ namespace ft {
 				_ncpy(start + idx, value, count);
 				CLEANUP;
 			}
-			// https://stackoverflow.com/questions/14791984/appending-stdvector-to-itself-undefined-behavior
 			template <class Iter>
 			void insert(iterator pos, Iter first, Iter last,
 					typename ft::enable_if<!ft::is_integral<Iter>::value>::type * = ft_nullptr_t()) {
 				size_type	idx = &*pos - start;
-				size_type	count = last - first;
+				size_type	count = 0;
+				while (last-- != first)
+					count++;
 				ALLOC FOR(count);
 				if (idx < size()) _rcpy(start + idx + count, start + idx, size() - idx);
 				curr += count;
-				_cpy(start + idx, &*first, count);
+				_cpy(start + idx, first, count);
 				CLEANUP;
 			}
 			iterator erase(iterator pos)
@@ -197,7 +205,7 @@ namespace ft {
 				SET(curr++, value);
 				CLEANUP;
 			}
-			void		pop_back() { curr--; }
+			void		pop_back() { allocator.destroy(curr--); }
 			void		resize(size_type count, T value = T()) {
 				if (size() >= count) { curr = start + count; return ; }
 				reserve(count);

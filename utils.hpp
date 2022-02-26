@@ -6,7 +6,7 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/18 21:12:56 by mberger-          #+#    #+#             */
-/*   Updated: 2022/01/31 19:53:33 by mberger-         ###   ########.fr       */
+/*   Updated: 2022/02/25 21:24:46 by matubu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ namespace ft {
 	template <class T>                         struct enable_if<true, T>  { typedef T type; };
 
 	// Nullptr
-	typedef struct {
+	typedef struct ft_nullptr_s {
 		template <class T>             inline operator T*() const { return (0); }
 		template <class C, class T>    inline operator T C::*() const { return (0); }
 	}	ft_nullptr_t;

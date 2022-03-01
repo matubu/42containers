@@ -6,7 +6,7 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/07 18:36:15 by mberger-          #+#    #+#             */
-/*   Updated: 2022/02/26 16:53:33 by matubu           ###   ########.fr       */
+/*   Updated: 2022/02/28 10:48:58 by mberger-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@ namespace ft {
 
 			pointer		_realloc(size_type new_cap) {
 				if (new_cap > max_size())
-					throw std::length_error("'n' exceeds maximum supported size");
+					throw std::length_error("allocator<T>::allocate(size_t n) 'n' exceeds maximum supported size");
 				size_type	n = size();
 				pointer		old = start;
 				last = (start = allocator.allocate(new_cap)) + new_cap;

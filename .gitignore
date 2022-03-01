@@ -4,5 +4,4 @@ a.out
 **/*.gch
 **/*.txt
 **/*.cpp_*
-containers
 **/*README*

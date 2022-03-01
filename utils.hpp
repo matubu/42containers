@@ -6,7 +6,7 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/18 21:12:56 by mberger-          #+#    #+#             */
-/*   Updated: 2022/02/25 21:24:46 by matubu           ###   ########.fr       */
+/*   Updated: 2022/02/28 10:23:36 by mberger-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,19 @@
 namespace ft {
 	// https://en.cppreference.com/w/cpp/algorithm/equal
 	// https://en.cppreference.com/w/cpp/algorithm/lexicographical_compare
-
+	// template<class InputIt1, class InputIt2>
+	// bool equal(InputIt1 first1, InputIt1 last1,
+	// 			InputIt2 first2);
+	// template<class InputIt1, class InputIt2, class BinaryPredicate>
+	// 	bool equal(InputIt1 first1, InputIt1 last1,
+	// 			InputIt2 first2, BinaryPredicate p);
+	// template<class InputIt1, class InputIt2>
+	// bool lexicographical_compare(InputIt1 first1, InputIt1 last1,
+	// 							InputIt2 first2, InputIt2 last2);
+	// template<class InputIt1, class InputIt2, class Compare>
+	// bool lexicographical_compare(InputIt1 first1, InputIt1 last1,
+	// 							InputIt2 first2, InputIt2 last2,
+	// 							Compare comp);
 
 	// Is integral
 	template <class T> struct is_integral {

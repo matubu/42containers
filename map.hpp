@@ -6,7 +6,7 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/31 16:39:27 by mberger-          #+#    #+#             */
-/*   Updated: 2022/02/26 21:59:08 by matubu           ###   ########.fr       */
+/*   Updated: 2022/02/28 12:38:19 by mberger-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,13 +47,10 @@ namespace ft {
 			typedef const T &                              const_reference;
 			typedef typename Allocator::pointer            pointer;
 			typedef typename Allocator::const_pointer      const_pointer;
-			typedef ft::bidirectional_iterator<Node>       iterator;
-			typedef ft::bidirectional_iterator<const Node> const_iterator;
-			typedef ft::reverse_iterator<iterator>         reverse_iterator;
-			typedef ft::reverse_iterator<const_iterator>   const_reverse_iterator;
 
 		private:
 			struct Node {
+				//TODO pair
 				Key		key;
 				T		data;
 				Node	*parent;
@@ -78,8 +75,10 @@ namespace ft {
 
 			Node		*nil;
 			Node		*root;
+			typename Allocator::template rebind<Node>::other	allocator;
 
-			Node	*_find(const Key &key) {
+			Node	*_find(const Key &key) const
+			{
 				Node	*node = root;
 				while (!node->nil)
 					if (node->key == key)
@@ -172,7 +171,7 @@ namespace ft {
 			Node *_cpy(Node *src)
 			{
 				if (src->nil) return (nil);
-				Node *node = new Node(src, nil);
+				Node	*node = new Node(src, nil);
 				node->right = _cpy(node->right);
 				node->right->parent = node;
 				node->left = _cpy(node->left);
@@ -181,28 +180,36 @@ namespace ft {
 			}
 
 		public:
-			typedef typename ft::bidirectional_iterator<Node>       iterator;
-			typedef const typename ft::bidirectional_iterator<Node> const_iterator;
-			typedef typename ft::reverse_iterator<iterator>         reverse_iterator;
-			typedef typename ft::reverse_iterator<const_iterator>   const_reverse_iterator;
+			typedef ft::bidirectional_iterator<Node>       iterator;
+			typedef ft::bidirectional_iterator<const Node> const_iterator;
+			typedef ft::reverse_iterator<iterator>         reverse_iterator;
+			typedef ft::reverse_iterator<const_iterator>   const_reverse_iterator;
 
 			explicit map(const key_compare &comp = key_compare(),
-						const allocator_type &alloc = allocator_type()) : nil(new Node()), root(nil) { (void)comp; (void)alloc; }
+						const allocator_type &alloc = allocator_type()) : nil(new Node()), root(nil), allocator() { (void)alloc; (void)comp; }
 			template <class InputIterator>
 			map(InputIterator first, InputIterator last,
 				const key_compare& comp = key_compare(),
-				const allocator_type& alloc = allocator_type()) {
-				(void)comp;
+				const allocator_type& alloc = allocator_type()) : nil(new Node()), root(nil), allocator() {
 				(void)alloc;
+				(void)comp;
 				while (first != last)
 				{
 					insert(*first);
 					++first;
 				}
 			}
-			map(const map &x) : nil(new Node()), root(_cpy(x->root)) {};
+			map(const map &x) : nil(new Node()), root(_cpy(x.root)), allocator(x.allocator) {};
 
 			~map() { _del(root); delete nil; }
+
+			map &operator=(const map &other)
+			{
+				_del(root);
+				root = _cpy(other.root);
+				return (*this);
+			}
+			allocator_type get_allocator() const { return (allocator); }
 
 			T &operator[](const Key &key) { return (_insert(value_type(key, T()))->data); };
 			T& at(const Key& key) { Node *node = _find(key); if (node->nil) throw std::out_of_range(""); return (node->data); }
@@ -215,7 +222,7 @@ namespace ft {
 					node = node->left;
 				return (iterator(node));
 			}
-			const_iterator begin()
+			const_iterator begin() const
 			{
 				Node	*node = root;
 				while (!node->left->nil)
@@ -223,19 +230,9 @@ namespace ft {
 				return (const_iterator(node));
 			}
 			iterator end()
-			{
-				Node	*node = root;
-				while (!node->right->nil)
-					node = node->right;
-				return (iterator(node));
-			}
+			{ return (iterator(nil)); }
 			const_iterator end() const
-			{
-				Node	*node = root;
-				while (!node->right->nil)
-					node = node->right;
-				return (const_iterator(node));
-			}
+			{ return (const_iterator(nil)); }
 			reverse_iterator rbegin() { return (reverse_iterator(end())); }
 			const_reverse_iterator rbegin() const { return (const_reverse_iterator(end())); }
 			reverse_iterator rend() { return (reverse_iterator(begin())); }
@@ -289,18 +286,39 @@ namespace ft {
 			};
 
 			size_type count(const Key &k) const { return (!_find(k)->nil); };
-			//iterator find( const Key& key );
-			//const_iterator find( const Key& key ) const;
-			mapped_type	*find(const Key &key) {
-				Node	*node = _find(key);
-				return (node->nil ? NULL : &node->data);
+			iterator find(const Key& key) { return (iterator(_find(key))); }
+			const_iterator find(const Key& key) const { return (const_iterator(_find(key))); }
+			// mapped_type	*find(const Key &key) {
+			// 	Node	*node = _find(key);
+			// 	return (node->nil ? NULL : &node->data);
+			// }
+			std::pair<iterator,iterator> equal_range(const Key &key)
+			{
+				Node *node = _find(key);
+				iterator it(node);
+				if (node->nil)
+					return (ft::make_pair<iterator, iterator>(it, it));
+				while (it->first == key)
+					++it;
+				return (ft::make_pair<iterator, iterator>(iterator(node), it));
 			}
-			//std::pair<iterator,iterator> equal_range(const Key &key);
-			//std::pair<const_iterator,const_iterator> equal_range(const Key &key) const;
-			//iterator lower_bound(const Key &key);
-			//const_iterator lower_bound(const Key &key) const;
-			//iterator upper_bound(const Key &key);
-			//const_iterator upper_bound(const Key &key) const;
+			std::pair<const_iterator,const_iterator> equal_range(const Key &key) const
+			{
+				Node *node = _find(key);
+				const_iterator it(node);
+				if (node->nil)
+					return (ft::make_pair<const_iterator, const_iterator>(it, it));
+				while (it->first == key)
+					++it;
+				return (ft::make_pair<const_iterator, const_iterator>(const_iterator(node), it));
+			}
+			iterator	lower_bound(const Key &key)
+			{
+				;
+			}
+			//const_iterator	lower_bound(const Key &key) const;
+			//iterator	upper_bound(const Key &key);
+			//const_iterator	upper_bound(const Key &key) const;
 
 			//key_compare key_comp() const;
 			//value_compare value_comp() const;

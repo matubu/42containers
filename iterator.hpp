@@ -114,13 +114,14 @@ namespace ft {
 			typedef typename ft::iterator<ft::bidirectional_iterator_tag, T>::iterator_category  iterator_category;
 			typedef typename ft::iterator<ft::bidirectional_iterator_tag, T>::value_type         value_type;
 			typedef typename ft::iterator<ft::bidirectional_iterator_tag, T>::difference_type    difference_type;
-			typedef T*                                                                           pointer;
-			typedef T&                                                                           reference;
+			typedef typename T::pointer                                                          pointer;
+			typedef typename T::reference                                                        reference;
 		private:
-			pointer	ptr;
+			typedef ret_type;
+			T	*ptr;
 		public:
 			bidirectional_iterator() : ptr(NULL) {}
-			bidirectional_iterator(const pointer ptr) : ptr(ptr) {}
+			bidirectional_iterator(T *ptr) : ptr(ptr) {}
 			bidirectional_iterator(const bidirectional_iterator<T> &other) : ptr(other.ptr) {}
 			bidirectional_iterator &operator=(const bidirectional_iterator<T> &other) { ptr = other.ptr; return (*this); }
 			~bidirectional_iterator() {}
@@ -128,8 +129,10 @@ namespace ft {
 			friend bool	operator==(const bidirectional_iterator &a, const bidirectional_iterator &b) { return (a.ptr == b.ptr); }
 			friend bool	operator!=(const bidirectional_iterator &a, const bidirectional_iterator &b) { return (a.ptr != b.ptr); }
 
-			reference operator*() const { return (ptr->data); }
-			pointer   operator->() const { return (&ptr->data); }
+			reference operator*() { return (ptr->data); }
+			pointer   operator->() { return (&ptr->data); }
+			const reference operator*() const { return (ptr->data); }
+			const pointer   operator->() const { return (&ptr->data); }
 
 			bidirectional_iterator &operator++() {
 				ptr = ptr->right;

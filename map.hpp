@@ -43,8 +43,8 @@ namespace ft {
 			typedef std::ptrdiff_t                         difference_type;
 			typedef Compare                                key_compare;
 			typedef Allocator                              allocator_type;
-			typedef T &                                    reference;
-			typedef const T &                              const_reference;
+			typedef T&                                     reference;
+			typedef const T&                               const_reference;
 			typedef typename Allocator::pointer            pointer;
 			typedef typename Allocator::const_pointer      const_pointer;
 
@@ -56,6 +56,9 @@ namespace ft {
 				Node		*right;
 				bool		red;
 				bool		nil;
+
+				typedef value_type &reference;
+				typedef value_type *pointer;
 
 				Node() :
 					data(),
@@ -85,7 +88,7 @@ namespace ft {
 						node = Compare()(key, node->data.first) ? node->left : node->right;
 				return (node);
 			}
-			void _leftRotate(Node *pivot)
+			void	_leftRotate(Node *pivot)
 			{
 				Node	**ptr = GET_PTR_NODE(pivot);
 				Node	*node = pivot->right;
@@ -97,7 +100,7 @@ namespace ft {
 				pivot->parent = node;
 				*ptr = node;
 			}
-			void _rightRotate(Node *pivot)
+			void	_rightRotate(Node *pivot)
 			{
 				Node	**ptr = GET_PTR_NODE(pivot);
 				Node	*node = pivot->left;
@@ -109,7 +112,7 @@ namespace ft {
 				pivot->parent = node;
 				*ptr = node;
 			}
-			void _del(Node *node)
+			void	_del(Node *node)
 			{
 				if (node->nil) return ;
 				_del(node->left);
@@ -117,7 +120,7 @@ namespace ft {
 				allocator.destroy(node);
 				allocator.deallocate(node, 1);
 			}
-			size_type _size(Node *node)
+			size_type	_size(Node *node) const
 			{
 				if (node->nil) return (0);
 				return (_size(node->left) + _size(node->right) + 1);
@@ -168,7 +171,7 @@ namespace ft {
 
 				return (*ptr);
 			}
-			Node *_cpy(Node *src)
+			Node	*_cpy(Node *src)
 			{
 				if (src->nil) return (nil);
 				Node	*node = allocator.allocate(1);
@@ -233,8 +236,8 @@ namespace ft {
 			allocator_type get_allocator() const { return (allocator); }
 
 			T &operator[](const Key &key) { return (_insert(value_type(key, T()))->data.second); };
-			T& at(const Key& key) { Node *node = _find(key); if (node->nil) throw std::out_of_range(""); return (node->data.second); }
-			const T& at(const Key& key) const { Node *node = _find(key); if (node->nil) throw std::out_of_range(""); return (node->data.second); }
+			T &at(const Key& key) { Node *node = _find(key); if (node->nil) throw std::out_of_range(""); return (node->data.second); }
+			const T &at(const Key& key) const { Node *node = _find(key); if (node->nil) throw std::out_of_range(""); return (node->data.second); }
 
 			iterator begin()
 			{
@@ -250,10 +253,8 @@ namespace ft {
 					node = node->left;
 				return (const_iterator(node));
 			}
-			iterator end()
-			{ return (iterator(nil)); }
-			const_iterator end() const
-			{ return (const_iterator(nil)); }
+			iterator end() { return (iterator(nil)); }
+			const_iterator end() const { return (const_iterator(nil)); }
 			reverse_iterator rbegin() { return (reverse_iterator(end())); }
 			const_reverse_iterator rbegin() const { return (const_reverse_iterator(end())); }
 			reverse_iterator rend() { return (reverse_iterator(begin())); }
@@ -330,13 +331,26 @@ namespace ft {
 					++it;
 				return (ft::make_pair<const_iterator, const_iterator>(const_iterator(node), it));
 			}
-			// iterator	lower_bound(const Key &key)
-			// {
-			// 	;
-			// }
-			//const_iterator	lower_bound(const Key &key) const;
-			//iterator	upper_bound(const Key &key);
-			//const_iterator	upper_bound(const Key &key) const;
+			iterator	lower_bound(const Key &key)
+			{
+				(void)key;
+				return (iterator(nil));
+			}
+			const_iterator	lower_bound(const Key &key) const
+			{
+				(void)key;
+				return (const_iterator(nil));
+			}
+			iterator	upper_bound(const Key &key)
+			{
+				(void)key;
+				return (iterator(nil));
+			}
+			const_iterator	upper_bound(const Key &key) const
+			{
+				(void)key;
+				return (const_iterator(nil));
+			}
 
 			//key_compare key_comp() const;
 			//value_compare value_comp() const;

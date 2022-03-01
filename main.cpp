@@ -100,8 +100,8 @@ void	scope_map(void)
 	ft::map<std::string, std::string> map;
 
 	#define get(key) { \
-		std::string *val = map.find(key); \
-		if (val == NULL) std::cout << std::endl << "cannot retrieve " << key << std::endl; \
+		ft::map<std::string, std::string>::iterator it = map.find(key); \
+		if (it == map.end()) std::cout << std::endl << "cannot retrieve " << key << std::endl; \
 		else std::cout << "✅" << std::flush; \
 	}
 	

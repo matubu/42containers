@@ -128,8 +128,8 @@ namespace ft {
 			friend bool	operator==(const bidirectional_iterator &a, const bidirectional_iterator &b) { return (a.ptr == b.ptr); }
 			friend bool	operator!=(const bidirectional_iterator &a, const bidirectional_iterator &b) { return (a.ptr != b.ptr); }
 
-			reference operator*() const { return (*ptr); }
-			pointer   operator->() const { return (ptr); }
+			reference operator*() const { return (ptr->data); }
+			pointer   operator->() const { return (&ptr->data); }
 
 			bidirectional_iterator &operator++() {
 				ptr = ptr->right;

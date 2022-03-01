@@ -50,25 +50,23 @@ namespace ft {
 
 		private:
 			struct Node {
-				//TODO pair
-				Key		key;
-				T		data;
-				Node	*parent;
-				Node	*left;
-				Node	*right;
-				bool	red;
-				bool	nil;
+				value_type	data;
+				Node		*parent;
+				Node		*left;
+				Node		*right;
+				bool		red;
+				bool		nil;
 
 				Node() :
-					key(), data(),
+					data(),
 					parent(this), left(this), right(this),
 					red(false), nil(true) {}
 				Node(const value_type &value, Node *_parent, Node *_nil) :
-					key(value.first), data(value.second),
+					data(value),
 					parent(_parent), left(_nil), right(_nil),
 					red(true), nil(false) {}
 				Node(const Node &other, Node *_nil) :
-					key(other.key), data(other.data),
+					data(other.data),
 					parent(_nil), left(_nil), right(_nil),
 					red(other.red), nil(false) {}
 			};
@@ -81,10 +79,10 @@ namespace ft {
 			{
 				Node	*node = root;
 				while (!node->nil)
-					if (node->key == key)
+					if (node->data.first == key)
 						break ;
 					else
-						node = Compare()(key, node->key) ? node->left : node->right;
+						node = Compare()(key, node->data.first) ? node->left : node->right;
 				return (node);
 			}
 			void _leftRotate(Node *pivot)
@@ -129,9 +127,9 @@ namespace ft {
 
 				while (!(*ptr)->nil)
 				{
-					if ((*ptr)->key == value.first) return (*ptr);
+					if ((*ptr)->data.first == value.first) return (*ptr);
 					parent = *ptr;
-					ptr = Compare()(value.first, (*ptr)->key) ? &(*ptr)->left : &(*ptr)->right;
+					ptr = Compare()(value.first, (*ptr)->data.first) ? &(*ptr)->left : &(*ptr)->right;
 				}
 				*ptr = new Node(value, parent, nil);
 
@@ -211,9 +209,9 @@ namespace ft {
 			}
 			allocator_type get_allocator() const { return (allocator); }
 
-			T &operator[](const Key &key) { return (_insert(value_type(key, T()))->data); };
-			T& at(const Key& key) { Node *node = _find(key); if (node->nil) throw std::out_of_range(""); return (node->data); }
-			const T& at(const Key& key) const { Node *node = _find(key); if (node->nil) throw std::out_of_range(""); return (node->data); }
+			T &operator[](const Key &key) { return (_insert(value_type(key, T()))->data.second); };
+			T& at(const Key& key) { Node *node = _find(key); if (node->nil) throw std::out_of_range(""); return (node->data.second); }
+			const T& at(const Key& key) const { Node *node = _find(key); if (node->nil) throw std::out_of_range(""); return (node->data.second); }
 
 			iterator begin()
 			{
@@ -288,10 +286,6 @@ namespace ft {
 			size_type count(const Key &k) const { return (!_find(k)->nil); };
 			iterator find(const Key& key) { return (iterator(_find(key))); }
 			const_iterator find(const Key& key) const { return (const_iterator(_find(key))); }
-			// mapped_type	*find(const Key &key) {
-			// 	Node	*node = _find(key);
-			// 	return (node->nil ? NULL : &node->data);
-			// }
 			std::pair<iterator,iterator> equal_range(const Key &key)
 			{
 				Node *node = _find(key);
@@ -312,10 +306,10 @@ namespace ft {
 					++it;
 				return (ft::make_pair<const_iterator, const_iterator>(const_iterator(node), it));
 			}
-			iterator	lower_bound(const Key &key)
-			{
-				;
-			}
+			// iterator	lower_bound(const Key &key)
+			// {
+			// 	;
+			// }
 			//const_iterator	lower_bound(const Key &key) const;
 			//iterator	upper_bound(const Key &key);
 			//const_iterator	upper_bound(const Key &key) const;
@@ -333,7 +327,7 @@ namespace ft {
 					buf += right ? "│  " : "   ";
 				}
 				if (!node->nil)
-					std::cout << (node->red ? "\033[101;30m" : "\033[40;97m") << node->data << "\033[0m" << (node->parent != parent ? " \033[91m(error)" : "") << "\033[0m" << std::endl;
+					std::cout << (node->red ? "\033[101;30m" : "\033[40;97m") << node->data.second << "\033[0m" << (node->parent != parent ? " \033[91m(error)" : "") << "\033[0m" << std::endl;
 				else
 				{
 					std::cout << "\033[90mnil\033[0m" << std::endl;

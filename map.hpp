@@ -114,7 +114,8 @@ namespace ft {
 				if (node->nil) return ;
 				_del(node->left);
 				_del(node->right);
-				delete node;
+				allocator.destroy(node);
+				allocator.deallocate(node, 1);
 			}
 			size_type _size(Node *node)
 			{
@@ -131,7 +132,8 @@ namespace ft {
 					parent = *ptr;
 					ptr = Compare()(value.first, (*ptr)->data.first) ? &(*ptr)->left : &(*ptr)->right;
 				}
-				*ptr = new Node(value, parent, nil);
+				*ptr = allocator.allocate(1);
+				allocator.construct(*ptr, Node(value, parent, nil));
 
 				//red black stuff
 				#define INSERT_FIX(side, ar, br) { \
@@ -169,7 +171,8 @@ namespace ft {
 			Node *_cpy(Node *src)
 			{
 				if (src->nil) return (nil);
-				Node	*node = new Node(src, nil);
+				Node	*node = allocator.allocate(1);
+				allocator.construct(node, Node(src, nil));
 				node->right = _cpy(node->right);
 				node->right->parent = node;
 				node->left = _cpy(node->left);
@@ -184,22 +187,42 @@ namespace ft {
 			typedef ft::reverse_iterator<const_iterator>   const_reverse_iterator;
 
 			explicit map(const key_compare &comp = key_compare(),
-						const allocator_type &alloc = allocator_type()) : nil(new Node()), root(nil), allocator() { (void)alloc; (void)comp; }
+						const allocator_type &alloc = allocator_type()) : allocator()
+			{
+				(void)alloc;
+				(void)comp;
+				nil = allocator.allocate(1);
+				allocator.construct(nil, Node());
+				root = nil;
+			}
 			template <class InputIterator>
 			map(InputIterator first, InputIterator last,
 				const key_compare& comp = key_compare(),
-				const allocator_type& alloc = allocator_type()) : nil(new Node()), root(nil), allocator() {
+				const allocator_type& alloc = allocator_type()) : allocator() {
 				(void)alloc;
 				(void)comp;
+				nil = allocator.allocate(1);
+				allocator.construct(nil, Node());
+				root = nil;
 				while (first != last)
 				{
 					insert(*first);
 					++first;
 				}
 			}
-			map(const map &x) : nil(new Node()), root(_cpy(x.root)), allocator(x.allocator) {};
+			map(const map &x) : allocator(x.allocator)
+			{
+				nil = allocator.allocate(1);
+				allocator.construct(nil, Node());
+				root = _cpy(x.root);
+			};
 
-			~map() { _del(root); delete nil; }
+			~map()
+			{
+				_del(root);
+				allocator.destroy(nil);
+				allocator.deallocate(nil, 1);
+			}
 
 			map &operator=(const map &other)
 			{
@@ -276,7 +299,8 @@ namespace ft {
 					node->right->parent = node->parent;
 					*ptr = node->right;
 				}
-				delete node;
+				allocator.destroy(node);
+				allocator.deallocate(node, 1);
 			}
 			void swap(map& x) {
 				std::swap(root, x.root);

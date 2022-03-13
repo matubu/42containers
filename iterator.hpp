@@ -116,10 +116,9 @@ namespace ft {
 			typedef typename ft::iterator<ft::bidirectional_iterator_tag, T>::difference_type    difference_type;
 			typedef typename T::pointer                                                          pointer;
 			typedef typename T::reference                                                        reference;
-		private:
-			typedef ret_type;
+
 			T	*ptr;
-		public:
+
 			bidirectional_iterator() : ptr(NULL) {}
 			bidirectional_iterator(T *ptr) : ptr(ptr) {}
 			bidirectional_iterator(const bidirectional_iterator<T> &other) : ptr(other.ptr) {}
@@ -135,15 +134,29 @@ namespace ft {
 			const pointer   operator->() const { return (&ptr->data); }
 
 			bidirectional_iterator &operator++() {
-				ptr = ptr->right;
+				if (ptr->right->nil)
+				{
+					T	*tmp;
+					do {
+						tmp = ptr;
+						ptr = ptr->parent;
+					}
+					while (tmp != ptr->left && !ptr->nil);
+				}
+				else
+				{
+					ptr = ptr->right;
+					while (!ptr->left->nil)
+						ptr = ptr->left;
+				}
 				return (*this);
 			}
 			bidirectional_iterator &operator--() {
 				ptr = ptr->left;
 				return (*this);
 			}
-			bidirectional_iterator operator++(int) { bidirectional_iterator tmp(ptr); ++this; return (tmp); }
-			bidirectional_iterator operator--(int) { bidirectional_iterator tmp(ptr); --this; return (tmp); }
+			bidirectional_iterator operator++(int) { bidirectional_iterator tmp(ptr); ++*this; return (tmp); }
+			bidirectional_iterator operator--(int) { bidirectional_iterator tmp(ptr); --*this; return (tmp); }
 	};
 
 	// Reverse iterator
@@ -187,8 +200,8 @@ namespace ft {
 					const reverse_iterator<B> &b) { return (a.base() <= b.base()); }
 
 			iterator_type	base() const { return (curr); };
-			reference		operator*() const { return (*(curr - 1)); }
-			pointer			operator->() const { return ((curr - 1).operator->()); }
+			reference		operator*() const { Iter tmp(curr); --tmp; return (*tmp); }
+			pointer			operator->() const { Iter tmp(curr); --tmp; return (tmp.operator->()); }
 			reference		operator[](difference_type n) const { return (curr[-n - 1]); }
 
 			reverse_iterator &operator++() { curr--; return (*this); }

@@ -47,7 +47,6 @@ namespace ft {
 			typedef const T&                               const_reference;
 			typedef typename Allocator::pointer            pointer;
 			typedef typename Allocator::const_pointer      const_pointer;
-
 		private:
 			struct Node {
 				value_type	data;
@@ -125,13 +124,17 @@ namespace ft {
 				if (node->nil) return (0);
 				return (_size(node->left) + _size(node->right) + 1);
 			}
-			Node	*_insert(const value_type &value) {
+			Node	*_insert(const value_type &value, bool *inserted = NULL) {
 				Node	*parent = nil;
 				Node	**ptr = &root;
 
 				while (!(*ptr)->nil)
 				{
-					if ((*ptr)->data.first == value.first) return (*ptr);
+					if ((*ptr)->data.first == value.first)
+					{
+						if (inserted) *inserted = false;
+						return (*ptr);
+					}
 					parent = *ptr;
 					ptr = Compare()(value.first, (*ptr)->data.first) ? &(*ptr)->left : &(*ptr)->right;
 				}
@@ -169,23 +172,56 @@ namespace ft {
 						INSERT_FIX(left, _rightRotate, _leftRotate)
 				root->red = false;
 
+				if (inserted) *inserted = true;
+
 				return (*ptr);
+			}
+			size_type	_erase(Node *node) {
+				if (node->nil) return (0);
+				Node	**ptr = GET_PTR_NODE(node);
+
+				if (node->left->nil)
+				{
+					node->right->parent = node->parent;
+					*ptr = node->right;
+				}
+				else if (node->right->nil)
+				{
+					node->left->parent = node->parent;
+					*ptr = node->left;
+				}
+				else
+				{
+					Node *min = node->right;
+					while (!min->left->nil)
+						min = min->left;
+					min->right->parent = min;
+					node->left->parent = min;
+					min->left = node->left;
+					min->red = node->red;
+					node->right->parent = node->parent;
+					*ptr = node->right;
+				}
+				allocator.destroy(node);
+				allocator.deallocate(node, 1);
+				return (1);
 			}
 			Node	*_cpy(Node *src)
 			{
 				if (src->nil) return (nil);
 				Node	*node = allocator.allocate(1);
-				allocator.construct(node, Node(src, nil));
-				node->right = _cpy(node->right);
+				allocator.construct(node, Node(*src, nil));
+				node->right = _cpy(src->right);
 				node->right->parent = node;
-				node->left = _cpy(node->left);
+				node->left = _cpy(src->left);
 				node->left->parent = node;
 				return (node);
 			}
 
 		public:
 			typedef ft::bidirectional_iterator<Node>       iterator;
-			typedef ft::bidirectional_iterator<const Node> const_iterator;
+			// typedef ft::bidirectional_iterator<const Node> const_iterator;
+			typedef ft::bidirectional_iterator<Node>       const_iterator;
 			typedef ft::reverse_iterator<iterator>         reverse_iterator;
 			typedef ft::reverse_iterator<const_iterator>   const_reverse_iterator;
 
@@ -262,56 +298,50 @@ namespace ft {
 
 			bool empty() const { return (root->nil); }
 			size_type size() const { return _size(root); }
-			size_type max_size() const { return (0); }
+			size_type max_size() const { return (allocator.max_size()); }
 
 			void clear() { _del(root); root = nil; }
-			//ft::pair<iterator, bool> insert(const value_type &value);
-			//iterator insert(iterator hint, const value_type &value);
-			//template<class InputIt>
-			//void insert(InputIt first, InputIt last);
-			void insert(const value_type &value) { _insert(value); }
-			//void erase(iterator pos);
-			//void erase(iterator first, iterator last);
-			//size_type erase(const Key &key);
-			void erase(const Key &key) {
-				Node	*node = _find(key);
-				if (node->nil) return ;
-				Node	**ptr = GET_PTR_NODE(node);
-
-				if (node->left->nil)
-				{
-					node->right->parent = node->parent;
-					*ptr = node->right;
-				}
-				else if (node->right->nil)
-				{
-					node->left->parent = node->parent;
-					*ptr = node->left;
-				}
-				else
-				{
-					Node *min = node->right;
-					while (!min->left->nil)
-						min = min->left;
-					min->right->parent = min;
-					node->left->parent = min;
-					min->left = node->left;
-					min->red = node->red;
-					node->right->parent = node->parent;
-					*ptr = node->right;
-				}
-				allocator.destroy(node);
-				allocator.deallocate(node, 1);
+			ft::pair<iterator, bool>	insert(const value_type &value)
+			{
+				bool	inserted;
+				iterator it(_insert(value, &inserted));
+				return (ft::make_pair<iterator, bool>(it, inserted));
 			}
-			void swap(map& x) {
+			iterator	insert(iterator hint, const value_type &value)
+			{
+				(void)hint;
+				return (insert(value).first);
+			}
+			template <class InputIt>
+			void	insert(InputIt first, InputIt last)
+			{
+				while (first != last)
+				{
+					insert(*first);
+					++first;
+				}
+			}
+			void	erase(iterator pos)
+			{ _erase(pos.ptr); }
+			void	erase(iterator first, iterator last)
+			{
+				while (first != last)
+				{
+					_erase(first.ptr);
+					++first;
+				}
+			}
+			size_type	erase(const Key &key)
+			{ return _erase(_find(key)); }
+			void	swap(map& x) {
 				std::swap(root, x.root);
 				std::swap(nil, x.nil);
 			};
 
-			size_type count(const Key &k) const { return (!_find(k)->nil); };
-			iterator find(const Key& key) { return (iterator(_find(key))); }
-			const_iterator find(const Key& key) const { return (const_iterator(_find(key))); }
-			std::pair<iterator,iterator> equal_range(const Key &key)
+			size_type	count(const Key &k) const { return (!_find(k)->nil); };
+			iterator	find(const Key& key) { return (iterator(_find(key))); }
+			const_iterator	find(const Key& key) const { return (const_iterator(_find(key))); }
+			ft::pair<iterator, iterator>	equal_range(const Key &key)
 			{
 				Node *node = _find(key);
 				iterator it(node);
@@ -321,7 +351,7 @@ namespace ft {
 					++it;
 				return (ft::make_pair<iterator, iterator>(iterator(node), it));
 			}
-			std::pair<const_iterator,const_iterator> equal_range(const Key &key) const
+			ft::pair<const_iterator,const_iterator>	equal_range(const Key &key) const
 			{
 				Node *node = _find(key);
 				const_iterator it(node);
@@ -352,10 +382,23 @@ namespace ft {
 				return (const_iterator(nil));
 			}
 
-			//key_compare key_comp() const;
-			//value_compare value_comp() const;
+			key_compare	key_comp() const { return (Compare()); };
+			class value_compare
+			{
+				protected:
+					friend class map;
+					Compare comp;
+					value_compare(Compare c) : comp(c) {}
+				public:
+					typedef bool result_type;
+					typedef value_type first_argument_type;
+					typedef value_type second_argument_type;
+					bool operator() (const value_type &x, const value_type &y) const
+					{ return comp(x.first, y.first); }
+			};
+			value_compare	value_comp() const { return (value_compare(Compare())); };
 
-			void debug(Node *node, Node *parent, std::string buf = "", bool right = true)
+			void	debug(Node *node, Node *parent, std::string buf = "", bool right = true)
 			{
 				if (!parent->nil)
 				{
@@ -377,14 +420,24 @@ namespace ft {
 			}
 			void debug() { debug(root, nil); }
 
-			//friend bool operator==(const map &lhs, const map &rhs);
-			//friend bool operator!=(const map &lhs, const map &rhs);
-			//friend bool operator<(const map &lhs, const map &rhs);
-			//friend bool operator<=(const map &lhs, const map &rhs);
-			//friend bool operator>(const map &lhs, const map &rhs);
-			//friend bool operator>=(const map &lhs, const map &rhs);
+			friend bool operator==(const map &lhs, const map &rhs)
+			{
+				if (lhs.size() != rhs.size()) return (false);
+				return (true);
+			}
+			friend bool operator!=(const map &lhs, const map &rhs) { return (!(lhs == rhs)); }
+			friend bool operator<(const map &lhs, const map &rhs)
+			{
+				return (lhs.size() < rhs.size());
+			}
+			friend bool operator>=(const map &lhs, const map &rhs)
+			{ return (!(lhs < rhs)); }
+			friend bool operator>(const map &lhs, const map &rhs)
+			{ return (rhs < lhs); }
+			friend bool operator<=(const map &lhs, const map &rhs)
+			{ return (!(lhs > rhs)); }
+
+			friend void swap(map &x, map &y) { x.swap(y); }
 	};
 
-	template <class Key, class T, class Compare, class Alloc>
-	void swap(map<Key, T, Compare, Alloc> &x, map<Key, T, Compare, Alloc> &y) { x.swap(y); }
 }

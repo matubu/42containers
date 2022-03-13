@@ -25,9 +25,9 @@ test: re run
 	@$(MAKE) fclean
 
 define test
-	cd containers_test && ./do.sh $(1) || echo "error containers_test"
-	$(MAKE) -C testor1 $(1) || echo "error testor 1"
-	cd testor2 && ./test.sh $(1) || echo "error testor 2"
+	cd containers_test && ./do.sh $(1) || echo "Error for containers test"
+	$(MAKE) -C testor1 $(1) || echo "Error for testor 1"
+	cd testor2 && ./test.sh $(1) || echo "Error for testor 2"
 endef
 
 vector:

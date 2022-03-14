@@ -6,7 +6,7 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/31 16:39:27 by mberger-          #+#    #+#             */
-/*   Updated: 2022/03/14 13:35:50 by mberger-         ###   ########.fr       */
+/*   Updated: 2022/03/14 21:47:09 by mberger-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -230,10 +230,9 @@ namespace ft {
 
 		public:
 			typedef ft::bidirectional_iterator<Node, value_type>       iterator;
-			// typedef ft::bidirectional_iterator<const Node> const_iterator;
-			typedef ft::bidirectional_iterator<Node, const value_type>       const_iterator;
-			typedef ft::reverse_iterator<iterator>         reverse_iterator;
-			typedef ft::reverse_iterator<const_iterator>   const_reverse_iterator;
+			typedef ft::bidirectional_iterator<Node, const value_type, true> const_iterator;
+			typedef ft::reverse_iterator<iterator>                     reverse_iterator;
+			typedef ft::reverse_iterator<const_iterator>               const_reverse_iterator;
 
 			explicit map(const key_compare &comp = key_compare(),
 						const allocator_type &alloc = allocator_type()) : allocator()
@@ -357,45 +356,52 @@ namespace ft {
 			size_type	count(const Key &k) const { return (!_find(k)->nil); };
 			iterator	find(const Key& key) { return (iterator(_find(key))); }
 			const_iterator	find(const Key& key) const { return (const_iterator(_find(key))); }
+
+			ft::pair<const_iterator, const_iterator>	equal_range(const Key &key) const
+			{
+				const_iterator it = begin();
+				for (; it != end() && !Compare()(key, it->first); ++it)
+					if (!Compare()(key, it->first) && !Compare()(it->first, key))
+						return (ft::make_pair<const_iterator, const_iterator>(it, ++it));
+				return (ft::make_pair<const_iterator, const_iterator>(it, it));
+			}
 			ft::pair<iterator, iterator>	equal_range(const Key &key)
 			{
-				Node *node = _find(key);
-				iterator it(node);
-				if (node->nil)
-					return (ft::make_pair<iterator, iterator>(it, it));
-				while (it->first == key)
-					++it;
-				return (ft::make_pair<iterator, iterator>(iterator(node), it));
+				iterator it = begin();
+				for (; it != end() && !Compare()(key, it->first); ++it)
+					if (!Compare()(key, it->first) && !Compare()(it->first, key))
+						return (ft::make_pair<iterator, iterator>(it, ++it));
+				return (ft::make_pair<iterator, iterator>(it, it));
 			}
-			ft::pair<const_iterator,const_iterator>	equal_range(const Key &key) const
+
+			const_iterator	lower_bound(const Key &key) const
 			{
-				Node *node = _find(key);
-				const_iterator it(node);
-				if (node->nil)
-					return (ft::make_pair<const_iterator, const_iterator>(it, it));
-				while (it->first == key)
-					++it;
-				return (ft::make_pair<const_iterator, const_iterator>(const_iterator(node), it));
+				for (const_iterator it = begin(); it != end(); ++it)
+					if (!Compare()(it->first, key))
+						return (it);
+				return (end());
 			}
 			iterator	lower_bound(const Key &key)
 			{
-				(void)key;
-				return (iterator(nil));
+				for (iterator it = begin(); it != end(); ++it)
+					if (!Compare()(it->first, key))
+						return (it);
+				return (end());
 			}
-			const_iterator	lower_bound(const Key &key) const
+
+			const_iterator	upper_bound(const Key &key) const
 			{
-				(void)key;
-				return (const_iterator(nil));
+				for (const_iterator it = begin(); it != end(); ++it)
+					if (Compare()(key, it->first))
+						return (it);
+				return (end());
 			}
 			iterator	upper_bound(const Key &key)
 			{
-				(void)key;
-				return (iterator(nil));
-			}
-			const_iterator	upper_bound(const Key &key) const
-			{
-				(void)key;
-				return (const_iterator(nil));
+				for (iterator it = begin(); it != end(); ++it)
+					if (Compare()(key, it->first))
+						return (it);
+				return (end());
 			}
 
 			key_compare	key_comp() const { return (Compare()); };
@@ -439,11 +445,28 @@ namespace ft {
 			friend bool operator==(const map &lhs, const map &rhs)
 			{
 				if (lhs.size() != rhs.size()) return (false);
+				const_iterator il = lhs.begin();
+				const_iterator ir = rhs.begin();
+				while (il != lhs.end())
+				{
+					if (*il != *ir)
+						return (false);
+					++il;
+					++ir;
+				}
 				return (true);
 			}
 			friend bool operator!=(const map &lhs, const map &rhs) { return (!(lhs == rhs)); }
 			friend bool operator<(const map &lhs, const map &rhs)
 			{
+				const_iterator il = lhs.begin();
+				const_iterator ir = rhs.begin();
+				while (il != lhs.end() && ir != rhs.end())
+				{
+					if (*il != *ir) return (*il < *ir);
+					++il;
+					++ir;
+				}
 				return (lhs.size() < rhs.size());
 			}
 			friend bool operator>=(const map &lhs, const map &rhs)

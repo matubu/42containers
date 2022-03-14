@@ -6,7 +6,7 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/31 16:39:27 by mberger-          #+#    #+#             */
-/*   Updated: 2022/02/28 12:38:19 by mberger-         ###   ########.fr       */
+/*   Updated: 2022/03/14 12:10:12 by mberger-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,7 @@ namespace ft {
 
 				typedef value_type &reference;
 				typedef value_type *pointer;
+				typedef value_type type;
 
 				Node() :
 					data(),
@@ -141,6 +142,11 @@ namespace ft {
 				*ptr = allocator.allocate(1);
 				allocator.construct(*ptr, Node(value, parent, nil));
 
+				if (nil->left->nil || Compare()(nil->left->data.first, (*ptr)->data.first))
+					nil->left = *ptr;
+				if (nil->right->nil || Compare()((*ptr)->data.first, nil->left->data.first))
+					nil->right = *ptr;
+
 				//red black stuff
 				#define INSERT_FIX(side, ar, br) { \
 					Node	*y = z->parent->parent->side; \
@@ -178,6 +184,10 @@ namespace ft {
 			}
 			size_type	_erase(Node *node) {
 				if (node->nil) return (0);
+				if (node == nil->left)
+					nil->left = (++iterator(nil->left)).ptr;
+				if (node == nil->right)
+					nil->right = (++iterator(nil->right)).ptr;
 				Node	**ptr = GET_PTR_NODE(node);
 
 				if (node->left->nil)
@@ -219,9 +229,9 @@ namespace ft {
 			}
 
 		public:
-			typedef ft::bidirectional_iterator<Node>       iterator;
+			typedef ft::bidirectional_iterator<Node, value_type>       iterator;
 			// typedef ft::bidirectional_iterator<const Node> const_iterator;
-			typedef ft::bidirectional_iterator<Node>       const_iterator;
+			typedef ft::bidirectional_iterator<Node, const value_type>       const_iterator;
 			typedef ft::reverse_iterator<iterator>         reverse_iterator;
 			typedef ft::reverse_iterator<const_iterator>   const_reverse_iterator;
 
@@ -300,7 +310,12 @@ namespace ft {
 			size_type size() const { return _size(root); }
 			size_type max_size() const { return (allocator.max_size()); }
 
-			void clear() { _del(root); root = nil; }
+			void clear() {
+				_del(root);
+				root = nil;
+				nil->left = nil;
+				nil->right = nil;
+			}
 			ft::pair<iterator, bool>	insert(const value_type &value)
 			{
 				bool	inserted;
@@ -327,8 +342,9 @@ namespace ft {
 			{
 				while (first != last)
 				{
-					_erase(first.ptr);
+					iterator tmp = first;
 					++first;
+					_erase(tmp.ptr);
 				}
 			}
 			size_type	erase(const Key &key)

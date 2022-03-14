@@ -6,7 +6,7 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/15 14:38:23 by mberger-          #+#    #+#             */
-/*   Updated: 2022/02/28 10:29:46 by mberger-         ###   ########.fr       */
+/*   Updated: 2022/03/14 12:10:45 by mberger-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,30 +108,32 @@ namespace ft {
 
 	// Bidirectional iterator
 	struct bidirectional_iterator_tag {};
-	template <class T>
+	template <class T, class RET>
 	class bidirectional_iterator : public ft::iterator<ft::bidirectional_iterator_tag, T> {
 		public:
 			typedef typename ft::iterator<ft::bidirectional_iterator_tag, T>::iterator_category  iterator_category;
 			typedef typename ft::iterator<ft::bidirectional_iterator_tag, T>::value_type         value_type;
 			typedef typename ft::iterator<ft::bidirectional_iterator_tag, T>::difference_type    difference_type;
-			typedef typename T::pointer                                                          pointer;
-			typedef typename T::reference                                                        reference;
+			typedef RET                                                                          *pointer;
+			typedef RET                                                                          &reference;
 
 			T	*ptr;
 
 			bidirectional_iterator() : ptr(NULL) {}
 			bidirectional_iterator(T *ptr) : ptr(ptr) {}
-			bidirectional_iterator(const bidirectional_iterator<T> &other) : ptr(other.ptr) {}
-			bidirectional_iterator &operator=(const bidirectional_iterator<T> &other) { ptr = other.ptr; return (*this); }
+			template <class T_, class RET_>
+			bidirectional_iterator(const bidirectional_iterator<T_, RET_> &other) : ptr(other.ptr) {}
+			template <class T_, class RET_>
+			bidirectional_iterator &operator=(const bidirectional_iterator<T_, RET_> &other) { ptr = other.ptr; return (*this); }
 			~bidirectional_iterator() {}
 
-			friend bool	operator==(const bidirectional_iterator &a, const bidirectional_iterator &b) { return (a.ptr == b.ptr); }
-			friend bool	operator!=(const bidirectional_iterator &a, const bidirectional_iterator &b) { return (a.ptr != b.ptr); }
+			template <class T_, class RET_>
+			friend bool	operator==(const bidirectional_iterator &a, const bidirectional_iterator<T_, RET_> &b) { return (a.ptr == b.ptr); }
+			template <class T_, class RET_>
+			friend bool	operator!=(const bidirectional_iterator &a, const bidirectional_iterator<T_, RET_> &b) { return (a.ptr != b.ptr); }
 
-			reference operator*() { return (ptr->data); }
-			pointer   operator->() { return (&ptr->data); }
-			const reference operator*() const { return (ptr->data); }
-			const pointer   operator->() const { return (&ptr->data); }
+			reference operator*() const { return (ptr->data); }
+			pointer   operator->() const { return (&ptr->data); }
 
 			bidirectional_iterator &operator++() {
 				if (ptr->right->nil)
@@ -152,7 +154,21 @@ namespace ft {
 				return (*this);
 			}
 			bidirectional_iterator &operator--() {
-				ptr = ptr->left;
+				if (ptr->left->nil)
+				{
+					T	*tmp;
+					do {
+						tmp = ptr;
+						ptr = ptr->parent;
+					}
+					while (tmp != ptr->right && !ptr->nil);
+				}
+				else
+				{
+					ptr = ptr->left;
+					while (!ptr->right->nil)
+						ptr = ptr->right;
+				}
 				return (*this);
 			}
 			bidirectional_iterator operator++(int) { bidirectional_iterator tmp(ptr); ++*this; return (tmp); }

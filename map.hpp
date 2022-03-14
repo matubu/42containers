@@ -6,7 +6,7 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/31 16:39:27 by mberger-          #+#    #+#             */
-/*   Updated: 2022/03/14 12:10:12 by mberger-         ###   ########.fr       */
+/*   Updated: 2022/03/14 13:35:50 by mberger-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,9 +142,9 @@ namespace ft {
 				*ptr = allocator.allocate(1);
 				allocator.construct(*ptr, Node(value, parent, nil));
 
-				if (nil->left->nil || Compare()(nil->left->data.first, (*ptr)->data.first))
+				if (nil->left->nil || Compare()((*ptr)->data.first, nil->left->data.first))
 					nil->left = *ptr;
-				if (nil->right->nil || Compare()((*ptr)->data.first, nil->left->data.first))
+				if (nil->right->nil || Compare()(nil->right->data.first, (*ptr)->data.first))
 					nil->right = *ptr;
 
 				//red black stuff
@@ -187,7 +187,7 @@ namespace ft {
 				if (node == nil->left)
 					nil->left = (++iterator(nil->left)).ptr;
 				if (node == nil->right)
-					nil->right = (++iterator(nil->right)).ptr;
+					nil->right = (--iterator(nil->right)).ptr;
 				Node	**ptr = GET_PTR_NODE(node);
 
 				if (node->left->nil)

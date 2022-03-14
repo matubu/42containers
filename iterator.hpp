@@ -6,7 +6,7 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/15 14:38:23 by mberger-          #+#    #+#             */
-/*   Updated: 2022/03/14 12:10:45 by mberger-         ###   ########.fr       */
+/*   Updated: 2022/03/14 13:28:49 by mberger-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,7 +136,9 @@ namespace ft {
 			pointer   operator->() const { return (&ptr->data); }
 
 			bidirectional_iterator &operator++() {
-				if (ptr->right->nil)
+				if (ptr->nil)
+					ptr = ptr->left;
+				else if (ptr->right->nil)
 				{
 					T	*tmp;
 					do {
@@ -154,7 +156,9 @@ namespace ft {
 				return (*this);
 			}
 			bidirectional_iterator &operator--() {
-				if (ptr->left->nil)
+				if (ptr->nil)
+					ptr = ptr->right;
+				else if (ptr->left->nil)
 				{
 					T	*tmp;
 					do {

@@ -156,6 +156,9 @@ void	scope_map(void)
 
 	map.debug();
 
+	for (ft::map<std::string, std::string>::iterator it = map.end(); it-- != map.begin();)
+		std::cout << it->first << " = " << it->second << std::endl;
+
 	for (int i = 200; i-- > 100;)
 	{
 		std::stringstream ss;

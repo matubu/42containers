@@ -6,7 +6,7 @@
 /*   By: kmacquet <kmacquet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/02 09:33:20 by bvalette          #+#    #+#             */
-/*   Updated: 2022/02/28 10:47:55 by mberger-         ###   ########.fr       */
+/*   Updated: 2022/03/14 21:51:54 by mberger-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@
 // #include "../../../includes/type_traits.hpp"
 #include "../../vector.hpp"
 #include "../../stack.hpp"
-//#include "../../map.hpp"
+#include "../../map.hpp"
 //#include "../../set.hpp"
 
 

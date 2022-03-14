@@ -6,7 +6,7 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/31 16:39:27 by mberger-          #+#    #+#             */
-/*   Updated: 2022/03/14 21:47:09 by mberger-         ###   ########.fr       */
+/*   Updated: 2022/03/14 21:53:02 by mberger-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -420,7 +420,7 @@ namespace ft {
 			};
 			value_compare	value_comp() const { return (value_compare(Compare())); };
 
-			void	debug(Node *node, Node *parent, std::string buf = "", bool right = true)
+			/*void	debug(Node *node, Node *parent, std::string buf = "", bool right = true)
 			{
 				if (!parent->nil)
 				{
@@ -440,7 +440,7 @@ namespace ft {
 				debug(node->left, node, buf, false);
 				if (parent->nil) std::cout << std::endl << std::flush;
 			}
-			void debug() { debug(root, nil); }
+			void debug() { debug(root, nil); }*/
 
 			friend bool operator==(const map &lhs, const map &rhs)
 			{

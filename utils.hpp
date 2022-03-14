@@ -6,7 +6,7 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/18 21:12:56 by mberger-          #+#    #+#             */
-/*   Updated: 2022/02/28 10:23:36 by mberger-         ###   ########.fr       */
+/*   Updated: 2022/03/14 21:55:51 by mberger-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,15 @@ namespace ft {
 	// bool lexicographical_compare(InputIt1 first1, InputIt1 last1,
 	// 							InputIt2 first2, InputIt2 last2,
 	// 							Compare comp);
+
+	// Swap
+	template<class T>
+	void swap(T &a, T &b)
+	{
+		T tmp(a);
+		a = b;
+		b = tmp;
+	}
 
 	// Is integral
 	template <class T> struct is_integral {

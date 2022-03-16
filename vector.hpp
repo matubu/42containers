@@ -6,14 +6,12 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/07 18:36:15 by mberger-          #+#    #+#             */
-/*   Updated: 2022/02/28 10:48:58 by mberger-         ###   ########.fr       */
+/*   Updated: 2022/03/15 17:19:38 by mberger-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-#include <memory> // allocator
-#include <stdexcept> // error
 #include "iterator.hpp" // reverse_iterator
 #include "utils.hpp" // is_integral enable_if
 
@@ -208,15 +206,18 @@ namespace ft {
 			void		pop_back() { allocator.destroy(curr--); }
 			void		resize(size_type count, T value = T()) {
 				if (size() >= count) { curr = start + count; return ; }
-				reserve(count);
+				ALLOC
+				if (count > capacity())
+					old = _realloc(count <= capacity() << 1 ? capacity() << 1 : count);
 				_ncpy(curr, value, count - size());
 				curr = start + count;
+				CLEANUP
 			}
 			void		swap(vector<T,Alloc> &other) {
 				std::swap(start, other.start);
 				std::swap(curr, other.curr);
 				std::swap(last, other.last);
-			};
+			}
 
 			// Operators
 			friend bool operator==(const vector &lhs, const vector &rhs) {

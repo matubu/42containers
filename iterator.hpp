@@ -6,7 +6,7 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/15 14:38:23 by mberger-          #+#    #+#             */
-/*   Updated: 2022/03/14 21:43:11 by mberger-         ###   ########.fr       */
+/*   Updated: 2022/03/15 16:41:58 by mberger-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,9 @@
 #include "utils.hpp"
 
 namespace ft {
+	struct random_access_iterator_tag {};
+	struct bidirectional_iterator_tag {};
+
 	// Iterator traits
 	template <class Iter>
 	struct iterator_traits {
@@ -31,7 +34,7 @@ namespace ft {
 		typedef T value_type;
 		typedef T* pointer;
 		typedef T& reference;
-		typedef std::random_access_iterator_tag iterator_category;
+		typedef ft::random_access_iterator_tag iterator_category;
 	};
 	
 	template <class T>
@@ -40,7 +43,7 @@ namespace ft {
 		typedef T value_type;
 		typedef const T* pointer;
 		typedef const T& reference;
-		typedef std::random_access_iterator_tag iterator_category;
+		typedef ft::random_access_iterator_tag iterator_category;
 	};
 
 	// Iterator
@@ -60,7 +63,6 @@ namespace ft {
 	};
 
 	// Random access iterator
-	struct random_access_iterator_tag {};
 	template <class T>
 	class random_access_iterator : public ft::iterator<ft::random_access_iterator_tag, T> {
 		public:
@@ -107,7 +109,6 @@ namespace ft {
 	};
 
 	// Bidirectional iterator
-	struct bidirectional_iterator_tag {};
 	template <class T, class RET, bool _const = false>
 	class bidirectional_iterator : public ft::iterator<ft::bidirectional_iterator_tag, T> {
 		public:
@@ -241,6 +242,4 @@ namespace ft {
 			difference_type operator-(const reverse_iterator &rhs) const
 			{ return (rhs.curr - curr); }
 	};
-
-
 }

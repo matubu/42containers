@@ -6,9 +6,11 @@
 /*   By: matubu <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/09 15:46:00 by matubu            #+#    #+#             */
-/*   Updated: 2022/02/09 15:50:38 by matubu           ###   ########.fr       */
+/*   Updated: 2022/03/15 19:30:38 by mberger-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+#pragma once
 
 #include "map.hpp"
 
@@ -18,8 +20,9 @@ namespace ft {
 		class Compare = std::less<Key>,
 		class Allocator = std::allocator<Key>
 	>
-	class set {
-		ft::map<Key, void, Compare, Allocator>	c;
-		public:
-	}
+	class set : public map<Key, Key, Compare, Allocator>
+	{
+		typedef Key value_type;
+		typedef Key mapped_type;
+	};
 }

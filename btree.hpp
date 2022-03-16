@@ -30,16 +30,15 @@
 
 namespace ft {
 	template <
-		class Key,
 		class T,
-		class Compare = std::less<Key>,
-		class Allocator = std::allocator<ft::pair<const Key, T> >
+		class Compare = std::less<Data>,
+		class Allocator = std::allocator<Data>
 	>
 	class map {
 		public:
-			typedef Key                                    key_type;
+			typedef T                                      key_type;
 			typedef T                                      mapped_type;
-			typedef ft::pair<const Key, T>                 value_type;
+			typedef T                                      value_type;
 			typedef std::size_t                            size_type;
 			typedef std::ptrdiff_t                         difference_type;
 			typedef Compare                                key_compare;
@@ -79,14 +78,14 @@ namespace ft {
 			Node		*root;
 			typename Allocator::template rebind<Node>::other	allocator;
 
-			Node	*_find(const Key &key) const
+			Node	*_find(const T &key) const
 			{
 				Node	*node = root;
 				while (!node->nil)
-					if (node->data.first == key)
+					if (!Compare(node->data, key) && !Compare(key, node->data))
 						break ;
 					else
-						node = Compare()(key, node->data.first) ? node->left : node->right;
+						node = Compare()(key, node->data) ? node->left : node->right;
 				return (node);
 			}
 			void	_leftRotate(Node *pivot)
@@ -132,20 +131,20 @@ namespace ft {
 
 				while (!(*ptr)->nil)
 				{
-					if ((*ptr)->data.first == value.first)
+					if (!Compare()((*ptr)->data, value) && !Compare()(value, (*ptr)->data))
 					{
 						if (inserted) *inserted = false;
 						return (*ptr);
 					}
 					parent = *ptr;
-					ptr = Compare()(value.first, (*ptr)->data.first) ? &(*ptr)->left : &(*ptr)->right;
+					ptr = Compare()(value, (*ptr)->data) ? &(*ptr)->left : &(*ptr)->right;
 				}
 				*ptr = allocator.allocate(1);
 				allocator.construct(*ptr, Node(value, parent, nil));
 
-				if (nil->left->nil || Compare()((*ptr)->data.first, nil->left->data.first))
+				if (nil->left->nil || Compare()((*ptr)->data, nil->left->data))
 					nil->left = *ptr;
-				if (nil->right->nil || Compare()(nil->right->data.first, (*ptr)->data.first))
+				if (nil->right->nil || Compare()(nil->right->data, (*ptr)->data))
 					nil->right = *ptr;
 
 				//red black stuff
@@ -358,55 +357,55 @@ namespace ft {
 			iterator	find(const Key& key) { return (iterator(_find(key))); }
 			const_iterator	find(const Key& key) const { return (const_iterator(_find(key))); }
 
-			ft::pair<const_iterator, const_iterator>	equal_range(const Key &key) const
+			ft::pair<const_iterator, const_iterator>	equal_range(const T &key) const
 			{
 				const_iterator it = begin();
-				for (; it != end() && !Compare()(key, it->first); ++it)
-					if (!Compare()(key, it->first) && !Compare()(it->first, key))
+				for (; it != end() && !Compare()(key, it); ++it)
+					if (!Compare()(key, it) && !Compare()(it, key))
 						return (ft::make_pair<const_iterator, const_iterator>(it, ++it));
 				return (ft::make_pair<const_iterator, const_iterator>(it, it));
 			}
-			ft::pair<iterator, iterator>	equal_range(const Key &key)
+			ft::pair<iterator, iterator>	equal_range(const T &key)
 			{
 				iterator it = begin();
-				for (; it != end() && !Compare()(key, it->first); ++it)
-					if (!Compare()(key, it->first) && !Compare()(it->first, key))
+				for (; it != end() && !Compare()(key, it); ++it)
+					if (!Compare()(key, it) && !Compare()(it, key))
 						return (ft::make_pair<iterator, iterator>(it, ++it));
 				return (ft::make_pair<iterator, iterator>(it, it));
 			}
 
-			const_iterator	lower_bound(const Key &key) const
+			const_iterator	lower_bound(const T &key) const
 			{
 				for (const_iterator it = begin(); it != end(); ++it)
-					if (!Compare()(it->first, key))
+					if (!Compare()(it, key))
 						return (it);
 				return (end());
 			}
-			iterator	lower_bound(const Key &key)
+			iterator	lower_bound(const T &key)
 			{
 				for (iterator it = begin(); it != end(); ++it)
-					if (!Compare()(it->first, key))
+					if (!Compare()(it, key))
 						return (it);
 				return (end());
 			}
 
-			const_iterator	upper_bound(const Key &key) const
+			const_iterator	upper_bound(const T &key) const
 			{
 				for (const_iterator it = begin(); it != end(); ++it)
-					if (Compare()(key, it->first))
+					if (Compare()(key, it))
 						return (it);
 				return (end());
 			}
 			iterator	upper_bound(const Key &key)
 			{
 				for (iterator it = begin(); it != end(); ++it)
-					if (Compare()(key, it->first))
+					if (Compare()(key, it))
 						return (it);
 				return (end());
 			}
 
 			key_compare	key_comp() const { return (Compare()); };
-			class value_compare
+			/*class value_compare
 			{
 				protected:
 					friend class map;
@@ -418,8 +417,8 @@ namespace ft {
 					typedef value_type second_argument_type;
 					bool operator() (const value_type &x, const value_type &y) const
 					{ return comp(x.first, y.first); }
-			};
-			value_compare	value_comp() const { return (value_compare(Compare())); };
+			};*/
+			value_compare	value_comp() const { return (Compare()); };
 
 			/*void	debug(Node *node, Node *parent, std::string buf = "", bool right = true)
 			{

@@ -125,7 +125,7 @@ void	scope_map(void)
 		map.insert(type(ss.str(), "+" + ss.str()));
 	}
 
-	map.debug();
+	//map.debug();
 
 	map.erase("0");
 	map.erase("6");
@@ -138,7 +138,7 @@ void	scope_map(void)
 	map.erase("5");
 	map.erase("4");
 
-	map.debug();
+	//map.debug();
 
 	for (int i = 0; i++ < 200;)
 	{
@@ -154,7 +154,7 @@ void	scope_map(void)
 		map.erase(ss.str());
 	}
 
-	map.debug();
+	//map.debug();
 
 	for (ft::map<std::string, std::string>::iterator it = map.end(); it-- != map.begin();)
 		std::cout << it->first << " = " << it->second << std::endl;
@@ -166,7 +166,7 @@ void	scope_map(void)
 		map.erase(ss.str());
 	}
 
-	map.debug();
+	//map.debug();
 }
 
 void	scope_int(void)

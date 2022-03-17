@@ -1,7 +1,7 @@
 NAME=containers
 SRCS=main.cpp
 OBJS=$(SRCS:.cpp=.o)
-FLAG=-Wall -Werror -Wextra -std=c++98 -O3 -fsanitize=address -g
+FLAG=-Wall -Werror -Wextra -std=c++98 -O3
 ECHO=echo "\033[92m"
 ENDL="\033[0m"
 
@@ -25,9 +25,7 @@ test: re run
 	@$(MAKE) fclean
 
 define test
-$(MAKE) -C testor1 $(1) || echo "Error for testor 1"
 	cd containers_test && ./do.sh $(1) || echo "Error for containers test"
-	cd testor2 && ./test.sh $(1) || echo "Error for testor 2"
 endef
 
 vector:

@@ -231,8 +231,8 @@ int	main(int argc, char **argv)
 	(void)argc;
 	(void)argv;
 	scope_map();
-	//scope_int();
-	//scope_string();
+	scope_int();
+	scope_string();
 
 	if (success)
 		std::cout << ENDL << "\033[102;30m >>> Success <<< " << ENDL;

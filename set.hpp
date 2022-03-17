@@ -6,7 +6,7 @@
 /*   By: matubu <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/09 15:46:00 by matubu            #+#    #+#             */
-/*   Updated: 2022/03/17 16:31:30 by mberger-         ###   ########.fr       */
+/*   Updated: 2022/03/17 17:16:45 by mberger-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,9 @@ namespace ft {
 		typedef	btree<Key, Compare, Allocator> btree;
 
 		public:
+			typedef typename btree::const_iterator iterator;
+			typedef typename btree::const_reverse_iterator reverse_iterator;
+
 			explicit set(const Compare &comp = Compare(),
 						const Allocator &alloc = Allocator()) : btree(comp, alloc) {}
 			template <class InputIterator>

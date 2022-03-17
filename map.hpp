@@ -6,7 +6,7 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/31 16:39:27 by mberger-          #+#    #+#             */
-/*   Updated: 2022/03/17 16:30:15 by mberger-         ###   ########.fr       */
+/*   Updated: 2022/03/17 17:47:43 by mberger-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,6 @@
 
 #define GET_PTR_NODE(node) \
 	(node->parent->nil ? &root : (node == node->parent->left ? &node->parent->left : &node->parent->right))
-
-// TODO add red black stuff for erase
 
 namespace ft {
 	template <
@@ -143,6 +141,8 @@ namespace ft {
 				*ptr = allocator.allocate(1);
 				allocator.construct(*ptr, Node(value, parent, nil));
 
+				Node	*inserted_ptr = *ptr;
+
 				if (nil->left->nil || Compare()((*ptr)->data.first, nil->left->data.first))
 					nil->left = *ptr;
 				if (nil->right->nil || Compare()(nil->right->data.first, (*ptr)->data.first))
@@ -181,7 +181,7 @@ namespace ft {
 
 				if (inserted) *inserted = true;
 
-				return (*ptr);
+				return (inserted_ptr);
 			}
 			size_type	_erase(Node *node) {
 				if (node->nil) return (0);

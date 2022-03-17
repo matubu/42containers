@@ -6,7 +6,7 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/07 18:36:15 by mberger-          #+#    #+#             */
-/*   Updated: 2022/03/15 17:19:38 by mberger-         ###   ########.fr       */
+/*   Updated: 2022/03/17 13:35:04 by mberger-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -203,7 +203,7 @@ namespace ft {
 				SET(curr++, value);
 				CLEANUP;
 			}
-			void		pop_back() { allocator.destroy(curr--); }
+			void		pop_back() { allocator.destroy(--curr); }
 			void		resize(size_type count, T value = T()) {
 				if (size() >= count) { curr = start + count; return ; }
 				ALLOC

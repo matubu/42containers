@@ -6,13 +6,13 @@
 /*   By: matubu <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/09 15:46:00 by matubu            #+#    #+#             */
-/*   Updated: 2022/03/15 19:30:38 by mberger-         ###   ########.fr       */
+/*   Updated: 2022/03/17 16:24:06 by mberger-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-#include "map.hpp"
+#include "btree.hpp"
 
 namespace ft {
 	template <
@@ -20,9 +20,19 @@ namespace ft {
 		class Compare = std::less<Key>,
 		class Allocator = std::allocator<Key>
 	>
-	class set : public map<Key, Key, Compare, Allocator>
+	class set : public btree<Key, Compare, Allocator>
 	{
-		typedef Key value_type;
-		typedef Key mapped_type;
+		typedef	btree<Key, Compare, Allocator> btree;
+
+		public:
+			explicit set(const Compare &comp = Compare(),
+						const Allocator &alloc = Allocator()) : btree(comp, alloc) {}
+			template <class InputIterator>
+			set(InputIterator first, InputIterator last,
+				const Compare& comp = Compare(),
+				const Allocator& alloc = Allocator()) : btree(first, last, comp, alloc) {}
+			set(const set &x) : btree(x) {}
+
+			~set() {}
 	};
 }

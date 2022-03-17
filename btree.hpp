@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   map.hpp                                            :+:      :+:    :+:   */
+/*   btree.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/31 16:39:27 by mberger-          #+#    #+#             */
-/*   Updated: 2022/03/15 18:59:14 by mberger-         ###   ########.fr       */
+/*   Updated: 2022/03/17 16:23:44 by mberger-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,10 +31,10 @@
 namespace ft {
 	template <
 		class T,
-		class Compare = std::less<Data>,
-		class Allocator = std::allocator<Data>
+		class Compare = std::less<T>,
+		class Allocator = std::allocator<T>
 	>
-	class map {
+	class btree {
 		public:
 			typedef T                                      key_type;
 			typedef T                                      mapped_type;
@@ -42,6 +42,7 @@ namespace ft {
 			typedef std::size_t                            size_type;
 			typedef std::ptrdiff_t                         difference_type;
 			typedef Compare                                key_compare;
+			typedef Compare                                value_compare;
 			typedef Allocator                              allocator_type;
 			typedef T&                                     reference;
 			typedef const T&                               const_reference;
@@ -229,12 +230,12 @@ namespace ft {
 			}
 
 		public:
-			typedef ft::bidirectional_iterator<Node, value_type>       iterator;
+			typedef ft::bidirectional_iterator<Node, value_type>             iterator;
 			typedef ft::bidirectional_iterator<Node, const value_type, true> const_iterator;
-			typedef ft::reverse_iterator<iterator>                     reverse_iterator;
-			typedef ft::reverse_iterator<const_iterator>               const_reverse_iterator;
+			typedef ft::reverse_iterator<iterator>                           reverse_iterator;
+			typedef ft::reverse_iterator<const_iterator>                     const_reverse_iterator;
 
-			explicit map(const key_compare &comp = key_compare(),
+			explicit btree(const key_compare &comp = key_compare(),
 						const allocator_type &alloc = allocator_type()) : allocator()
 			{
 				(void)alloc;
@@ -244,7 +245,7 @@ namespace ft {
 				root = nil;
 			}
 			template <class InputIterator>
-			map(InputIterator first, InputIterator last,
+			btree(InputIterator first, InputIterator last,
 				const key_compare& comp = key_compare(),
 				const allocator_type& alloc = allocator_type()) : allocator() {
 				(void)alloc;
@@ -258,21 +259,21 @@ namespace ft {
 					++first;
 				}
 			}
-			map(const map &x) : allocator(x.allocator)
+			btree(const btree &x) : allocator(x.allocator)
 			{
 				nil = allocator.allocate(1);
 				allocator.construct(nil, Node());
 				root = _cpy(x.root);
-			};
+			}
 
-			~map()
+			~btree()
 			{
 				_del(root);
 				allocator.destroy(nil);
 				allocator.deallocate(nil, 1);
 			}
 
-			map &operator=(const map &other)
+			btree &operator=(const btree &other)
 			{
 				_del(root);
 				root = _cpy(other.root);
@@ -280,9 +281,9 @@ namespace ft {
 			}
 			allocator_type get_allocator() const { return (allocator); }
 
-			T &operator[](const Key &key) { return (_insert(value_type(key, T()))->data.second); };
-			T &at(const Key& key) { Node *node = _find(key); if (node->nil) throw std::out_of_range(""); return (node->data.second); }
-			const T &at(const Key& key) const { Node *node = _find(key); if (node->nil) throw std::out_of_range(""); return (node->data.second); }
+			T &operator[](const key_type &key) { return (_insert(value_type(key, T()))->data.second); };
+			T &at(const key_type &key) { Node *node = _find(key); if (node->nil) throw std::out_of_range(""); return (node->data.second); }
+			const T &at(const key_type &key) const { Node *node = _find(key); if (node->nil) throw std::out_of_range(""); return (node->data.second); }
 
 			iterator begin()
 			{
@@ -346,30 +347,30 @@ namespace ft {
 					_erase(tmp.ptr);
 				}
 			}
-			size_type	erase(const Key &key)
+			size_type	erase(const key_type &key)
 			{ return _erase(_find(key)); }
-			void	swap(map& x) {
+			void	swap(btree& x) {
 				std::swap(root, x.root);
 				std::swap(nil, x.nil);
 			};
 
-			size_type	count(const Key &k) const { return (!_find(k)->nil); };
-			iterator	find(const Key& key) { return (iterator(_find(key))); }
-			const_iterator	find(const Key& key) const { return (const_iterator(_find(key))); }
+			size_type	count(const key_type &k) const { return (!_find(k)->nil); };
+			iterator	find(const key_type &key) { return (iterator(_find(key))); }
+			const_iterator	find(const key_type &key) const { return (const_iterator(_find(key))); }
 
 			ft::pair<const_iterator, const_iterator>	equal_range(const T &key) const
 			{
 				const_iterator it = begin();
-				for (; it != end() && !Compare()(key, it); ++it)
-					if (!Compare()(key, it) && !Compare()(it, key))
+				for (; it != end() && !Compare()(key, *it); ++it)
+					if (!Compare()(key, *it) && !Compare()(*it, key))
 						return (ft::make_pair<const_iterator, const_iterator>(it, ++it));
 				return (ft::make_pair<const_iterator, const_iterator>(it, it));
 			}
 			ft::pair<iterator, iterator>	equal_range(const T &key)
 			{
 				iterator it = begin();
-				for (; it != end() && !Compare()(key, it); ++it)
-					if (!Compare()(key, it) && !Compare()(it, key))
+				for (; it != end() && !Compare()(key, *it); ++it)
+					if (!Compare()(key, *it) && !Compare()(*it, key))
 						return (ft::make_pair<iterator, iterator>(it, ++it));
 				return (ft::make_pair<iterator, iterator>(it, it));
 			}
@@ -377,14 +378,14 @@ namespace ft {
 			const_iterator	lower_bound(const T &key) const
 			{
 				for (const_iterator it = begin(); it != end(); ++it)
-					if (!Compare()(it, key))
+					if (!Compare()(*it, key))
 						return (it);
 				return (end());
 			}
 			iterator	lower_bound(const T &key)
 			{
 				for (iterator it = begin(); it != end(); ++it)
-					if (!Compare()(it, key))
+					if (!Compare()(*it, key))
 						return (it);
 				return (end());
 			}
@@ -392,14 +393,14 @@ namespace ft {
 			const_iterator	upper_bound(const T &key) const
 			{
 				for (const_iterator it = begin(); it != end(); ++it)
-					if (Compare()(key, it))
+					if (Compare()(key, *it))
 						return (it);
 				return (end());
 			}
-			iterator	upper_bound(const Key &key)
+			iterator	upper_bound(const key_type &key)
 			{
 				for (iterator it = begin(); it != end(); ++it)
-					if (Compare()(key, it))
+					if (Compare()(key, *it))
 						return (it);
 				return (end());
 			}
@@ -408,7 +409,7 @@ namespace ft {
 			/*class value_compare
 			{
 				protected:
-					friend class map;
+					friend class btree;
 					Compare comp;
 					value_compare(Compare c) : comp(c) {}
 				public:
@@ -442,7 +443,7 @@ namespace ft {
 			}
 			void debug() { debug(root, nil); }*/
 
-			friend bool operator==(const map &lhs, const map &rhs)
+			friend bool operator==(const btree &lhs, const btree &rhs)
 			{
 				if (lhs.size() != rhs.size()) return (false);
 				const_iterator il = lhs.begin();
@@ -456,8 +457,8 @@ namespace ft {
 				}
 				return (true);
 			}
-			friend bool operator!=(const map &lhs, const map &rhs) { return (!(lhs == rhs)); }
-			friend bool operator<(const map &lhs, const map &rhs)
+			friend bool operator!=(const btree &lhs, const btree &rhs) { return (!(lhs == rhs)); }
+			friend bool operator<(const btree &lhs, const btree &rhs)
 			{
 				const_iterator il = lhs.begin();
 				const_iterator ir = rhs.begin();
@@ -469,14 +470,14 @@ namespace ft {
 				}
 				return (lhs.size() < rhs.size());
 			}
-			friend bool operator>=(const map &lhs, const map &rhs)
+			friend bool operator>=(const btree &lhs, const btree &rhs)
 			{ return (!(lhs < rhs)); }
-			friend bool operator>(const map &lhs, const map &rhs)
+			friend bool operator>(const btree &lhs, const btree &rhs)
 			{ return (rhs < lhs); }
-			friend bool operator<=(const map &lhs, const map &rhs)
+			friend bool operator<=(const btree &lhs, const btree &rhs)
 			{ return (!(lhs > rhs)); }
 
-			friend void swap(map &x, map &y) { x.swap(y); }
+			friend void swap(btree &x, btree &y) { x.swap(y); }
 	};
 
 }

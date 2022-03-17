@@ -25,17 +25,17 @@ test: re run
 	@$(MAKE) fclean
 
 define test
-	cd containers_test && ./do.sh $(1) || echo "Error for containers test"
+	cd containers_test && ./do.sh $(1) || true
 endef
 
 vector:
-	$(call test,vector)
+	@$(call test,vector)
 stack:
-	$(call test,stack)
+	@$(call test,stack)
 map:
-	$(call test,map)
+	@$(call test,map)
 set:
-	$(call test,set)
+	@$(call test,set)
 
 fulltest: test vector stack map set
 

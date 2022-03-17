@@ -6,7 +6,7 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/15 14:38:23 by mberger-          #+#    #+#             */
-/*   Updated: 2022/03/15 16:41:58 by mberger-         ###   ########.fr       */
+/*   Updated: 2022/03/17 16:46:44 by mberger-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,8 +122,6 @@ namespace ft {
 
 			bidirectional_iterator() : ptr(NULL) {}
 			bidirectional_iterator(T *ptr) : ptr(ptr) {}
-			//template <class RET_, bool const_>
-			//bidirectional_iterator(const bidirectional_iterator<T, RET_, const_> &other) : ptr(other.ptr) {}
 			bidirectional_iterator(const bidirectional_iterator &other) : ptr(other.ptr) {}
 			bidirectional_iterator &operator=(const bidirectional_iterator &other) { ptr = other.ptr; return (*this); }
 			~bidirectional_iterator() {}

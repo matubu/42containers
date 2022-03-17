@@ -6,7 +6,7 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/18 21:12:56 by mberger-          #+#    #+#             */
-/*   Updated: 2022/03/15 17:15:53 by mberger-         ###   ########.fr       */
+/*   Updated: 2022/03/17 16:28:41 by mberger-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,7 +75,7 @@ namespace ft {
 	}
 
 	// Swap
-	template<class T>
+	template <class T>
 	void swap(T &a, T &b)
 	{
 		T tmp(a);

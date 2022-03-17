@@ -6,7 +6,7 @@
 /*   By: mberger- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/31 16:39:27 by mberger-          #+#    #+#             */
-/*   Updated: 2022/03/17 16:23:44 by mberger-         ###   ########.fr       */
+/*   Updated: 2022/03/17 16:31:15 by mberger-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,7 @@ namespace ft {
 			{
 				Node	*node = root;
 				while (!node->nil)
-					if (!Compare(node->data, key) && !Compare(key, node->data))
+					if (!Compare()(node->data, key) && !Compare()(key, node->data))
 						break ;
 					else
 						node = Compare()(key, node->data) ? node->left : node->right;
@@ -476,8 +476,6 @@ namespace ft {
 			{ return (rhs < lhs); }
 			friend bool operator<=(const btree &lhs, const btree &rhs)
 			{ return (!(lhs > rhs)); }
-
-			friend void swap(btree &x, btree &y) { x.swap(y); }
 	};
 
 }

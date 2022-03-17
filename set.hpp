@@ -6,7 +6,7 @@
 /*   By: matubu <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/09 15:46:00 by matubu            #+#    #+#             */
-/*   Updated: 2022/03/17 16:24:06 by mberger-         ###   ########.fr       */
+/*   Updated: 2022/03/17 16:31:30 by mberger-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,5 +34,7 @@ namespace ft {
 			set(const set &x) : btree(x) {}
 
 			~set() {}
+
+			friend void swap(set &x, set &y) { x.swap(y); }
 	};
 }
